@@ -143,7 +143,7 @@ function HitCard({ hit, rank, mode }: { hit: SearchHit; rank: number; mode: Sear
         </CardDescription>
       </CardHeader>
       <CardContent className="text-xs text-muted-foreground">
-        <Link href={`/estimates/${hit.estimateId}`} className="font-medium text-primary hover:underline">
+        <Link href={`/estimates/${hit.estimateId}`} transitionTypes={["nav-forward"]} className="font-medium text-primary hover:underline">
           {hit.estimateName}
         </Link>
       </CardContent>

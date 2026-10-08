@@ -14,7 +14,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <header className="border-b bg-card">
+        <header className="border-b bg-card [view-transition-name:site-header]">
           <nav className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-4 text-sm">
             <Link href="/" className="text-base font-bold tracking-tight text-primary">
               Paint Estimator estimates

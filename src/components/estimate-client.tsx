@@ -1,5 +1,7 @@
 "use client";
 
+import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -76,67 +78,73 @@ export function EstimateClient({ initial }: { initial: EstimateView }) {
 
   const { summary } = view;
   return (
-    <div className="space-y-10">
-      <section data-testid="estimate-summary" className="space-y-6 rounded-2xl bg-plum-800 p-6 text-plum-50 shadow-sm sm:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-plum-200">Whole-home estimate</p>
-            <h1 className="text-2xl font-semibold tracking-tight text-white">{view.name}</h1>
+    <div className="space-y-6">
+      <Link href="/" transitionTypes={["nav-back"]} className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary">
+        <ChevronLeft className="size-4" />
+        All homes
+      </Link>
+      <div className="space-y-10">
+        <section data-testid="estimate-summary" className="space-y-6 rounded-2xl bg-plum-800 p-6 text-plum-50 shadow-sm sm:p-8">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-plum-200">Whole-home estimate</p>
+              <h1 className="text-2xl font-semibold tracking-tight text-white">{view.name}</h1>
+            </div>
+            <input
+              ref={fileInput}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              className="hidden"
+              data-testid="photo-input"
+              onChange={(e) => upload(e.target.files)}
+            />
+            <Button
+              size="lg"
+              className="bg-white text-plum-800 hover:bg-plum-100"
+              onClick={() => fileInput.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? "Uploading..." : "Upload photos"}
+            </Button>
           </div>
-          <input
-            ref={fileInput}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            multiple
-            className="hidden"
-            data-testid="photo-input"
-            onChange={(e) => upload(e.target.files)}
-          />
-          <Button
-            size="lg"
-            className="bg-white text-plum-800 hover:bg-plum-100"
-            onClick={() => fileInput.current?.click()}
-            disabled={uploading}
-          >
-            {uploading ? "Uploading..." : "Upload photos"}
-          </Button>
-        </div>
-        <p className="text-5xl font-semibold tracking-tight tabular-nums text-white sm:text-6xl" data-testid="estimate-total">
-          {formatCents(summary.totalCents)}
-        </p>
-        <ul className="flex flex-wrap gap-2 text-sm">
-          {(summary.roomCount > 0 || summary.exterior.status === "none") && (
-            <Chip>
-              {summary.roomCount} {summary.roomCount === 1 ? "room" : "rooms"} priced
-              {summary.roomCount > 0 && ` (${formatCents(summary.interiorCents)})`}
-            </Chip>
-          )}
-          <ExteriorLine exterior={summary.exterior} />
-          <Chip>{summary.gallons} gallons</Chip>
-          {summary.pendingCount > 0 && <Chip tone="pending">{summary.pendingCount} still analyzing, not in total</Chip>}
-          {summary.failedCount > 0 && <Chip tone="failed">{summary.failedCount} failed, not in total</Chip>}
-          {summary.complete && <Chip tone="done">Everything priced</Chip>}
-        </ul>
-        <p className="text-sm text-plum-200">
-          Upload one photo per room or per side of the house. Estimates appear as each photo is analyzed.
-        </p>
-      </section>
-      {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
+          <p className="text-5xl font-semibold tracking-tight tabular-nums text-white sm:text-6xl" data-testid="estimate-total">
+            {formatCents(summary.totalCents)}
+          </p>
+          <ul className="flex flex-wrap gap-2 text-sm">
+            {(summary.roomCount > 0 || summary.exterior.status === "none") && (
+              <Chip>
+                {summary.roomCount} {summary.roomCount === 1 ? "room" : "rooms"} priced
+                {summary.roomCount > 0 && ` (${formatCents(summary.interiorCents)})`}
+              </Chip>
+            )}
+            <ExteriorLine exterior={summary.exterior} />
+            <Chip>{summary.gallons} gallons</Chip>
+            {summary.pendingCount > 0 && <Chip tone="pending">{summary.pendingCount} still analyzing, not in total</Chip>}
+            {summary.failedCount > 0 && <Chip tone="failed">{summary.failedCount} failed, not in total</Chip>}
+            {summary.complete && <Chip tone="done">Everything priced</Chip>}
+          </ul>
+          <p className="text-sm text-plum-200">
+            Upload one photo per room or per side of the house. Estimates appear as each photo is analyzed.
+          </p>
+        </section>
+        {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
 
-      {summary.exterior.status !== "none" && (
-        <Section title="Exterior scope">
-          <ExteriorPanel exterior={summary.exterior} photos={view.photos} uploading={uploading} onScope={setScope} onUpload={upload} />
+        {summary.exterior.status !== "none" && (
+          <Section title="Exterior scope">
+            <ExteriorPanel exterior={summary.exterior} photos={view.photos} uploading={uploading} onScope={setScope} onUpload={upload} />
+          </Section>
+        )}
+
+        <Section title="Rooms and sides" description="Line items for each analyzed photo.">
+          <div className="space-y-6">
+            {view.photos.map((photo) => (
+              <PhotoCard key={photo.id} photo={photo} onRetry={() => retry(photo.id)} onSide={(side) => setSide(photo.id, side)} />
+            ))}
+          </div>
+          {view.photos.length === 0 && <p className="text-muted-foreground">No photos yet.</p>}
         </Section>
-      )}
-
-      <Section title="Rooms and sides" description="Line items for each analyzed photo.">
-        <div className="space-y-6">
-          {view.photos.map((photo) => (
-            <PhotoCard key={photo.id} photo={photo} onRetry={() => retry(photo.id)} onSide={(side) => setSide(photo.id, side)} />
-          ))}
-        </div>
-        {view.photos.length === 0 && <p className="text-muted-foreground">No photos yet.</p>}
-      </Section>
+      </div>
     </div>
   );
 }

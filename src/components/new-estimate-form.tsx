@@ -21,7 +21,7 @@ export function NewEstimateForm() {
     });
     setBusy(false);
     if (!res.ok) return setError((await res.json()).error);
-    router.push(`/estimates/${(await res.json()).id}`);
+    router.push(`/estimates/${(await res.json()).id}`, { transitionTypes: ["nav-forward"] });
   }
 
   return (
