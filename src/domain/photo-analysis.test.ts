@@ -48,6 +48,12 @@ describe("parsePhotoAnalysis", () => {
     expect(JSON.stringify(photoAnalysisJsonSchema)).not.toMatch(/"oneOf"|"const"/);
   });
 
+  it("sends stories as an integer range, because Gemini drops the exterior branch on a numeric enum", () => {
+    const exteriorBranch = (photoAnalysisJsonSchema.properties!.analysis as { anyOf: { properties: Record<string, unknown> }[] }).anyOf[1];
+    expect(exteriorBranch.properties.stories).toMatchObject({ type: "integer", minimum: 1, maximum: 3 });
+    expect(exteriorBranch.properties.stories).not.toHaveProperty("enum");
+  });
+
   it("validates every fixture", () => {
     for (const analysis of Object.values(FIXTURE_ANALYSES)) {
       expect(parsePhotoAnalysis(reply(analysis)).ok).toBe(true);

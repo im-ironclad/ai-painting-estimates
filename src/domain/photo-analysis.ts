@@ -124,7 +124,10 @@ export type PhotoAnalysis = z.infer<typeof PhotoAnalysis>;
  * What the model must return. Strict structured outputs require an object at
  * the root, so the union sits under one key. `oneOf` and `const` become
  * `anyOf` and `enum` because not every provider accepts the former; the
- * branches are disjoint on `kind`, so the meaning is the same.
+ * branches are disjoint on `kind`, so the meaning is the same. A numeric enum
+ * becomes an integer range: Gemini only honours string enums, and given
+ * `stories: enum [1, 2, 3]` it returned an empty exterior object every time.
+ * Zod still checks the exact values on the way back in.
  */
 const ModelReply = z.object({ analysis: PhotoAnalysis }).strict();
 
@@ -138,6 +141,11 @@ export const photoAnalysisJsonSchema = z.toJSONSchema(ModelReply, {
     if (jsonSchema.const !== undefined) {
       jsonSchema.enum = [jsonSchema.const];
       delete jsonSchema.const;
+    }
+    if (jsonSchema.enum?.every((v) => typeof v === "number")) {
+      const values = jsonSchema.enum as number[];
+      Object.assign(jsonSchema, { type: "integer", minimum: Math.min(...values), maximum: Math.max(...values) });
+      delete jsonSchema.enum;
     }
   },
 });

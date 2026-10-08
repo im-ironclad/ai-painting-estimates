@@ -100,12 +100,15 @@ export async function analyzePhoto(imagePath: string): Promise<VisionResult> {
 
   const payload = (await response.json()) as {
     model?: string;
-    choices?: { message?: { content?: string | null } }[];
+    choices?: { finish_reason?: string; message?: { content?: string | null } }[];
   };
-  const content = payload.choices?.[0]?.message?.content;
+  const choice = payload.choices?.[0];
+  const content = choice?.message?.content;
   if (!content) throw new VisionError("OpenRouter response had no message content", true);
 
   const parsed = parsePhotoAnalysis(content);
-  if (!parsed.ok) throw new VisionError(parsed.error, true);
+  if (!parsed.ok) {
+    throw new VisionError(`${parsed.error} (finish_reason=${choice.finish_reason}, ${content.length} chars)`, true);
+  }
   return { analysis: parsed.analysis, model: payload.model ?? model };
 }
