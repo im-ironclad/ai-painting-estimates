@@ -1,4 +1,4 @@
-# Sample room photos
+# Sample photos
 
 Downloaded from Wikimedia Commons for local testing. Each is freely licensed.
 
@@ -10,3 +10,9 @@ Downloaded from Wikimedia Commons for local testing. Each is freely licensed.
 | `kitchen.jpg` | [File:Kitchen, Interior of apartment in Brisbane, 2025, 03.jpg](https://commons.wikimedia.org/wiki/File:Kitchen,_Interior_of_apartment_in_Brisbane,_2025,_03.jpg) | CC BY-SA 4.0 | Chris Olszewski |
 | `bathroom.jpg` | [File:Bathroom, Interior of apartment in Brisbane, 2025, 07.jpg](https://commons.wikimedia.org/wiki/File:Bathroom,_Interior_of_apartment_in_Brisbane,_2025,_07.jpg) | CC BY-SA 4.0 | Chris Olszewski |
 | `water-damaged-ceiling.jpg` | [File:Ceiling sheetrock damaged by water so paint was peeling.jpg](https://commons.wikimedia.org/wiki/File:Ceiling_sheetrock_damaged_by_water_so_paint_was_peeling.jpg) | CC0 | Tomwsulcer |
+| `exterior-front.jpg` | [File:House At 25 Clyde St, Somerville, MA (Front).JPG](https://commons.wikimedia.org/wiki/File:House_At_25_Clyde_St,_Somerville,_MA_(Front).JPG) | CC BY-SA 3.0 | Hugehands |
+| `exterior-left.jpg` | [File:House At 25 Clyde St, Somerville, MA (Left Side).JPG](https://commons.wikimedia.org/wiki/File:House_At_25_Clyde_St,_Somerville,_MA_(Left_Side).JPG) | CC BY-SA 3.0 | Hugehands |
+| `exterior-right.jpg` | [File:House At 25 Clyde St, Somerville, MA (Right Side).JPG](https://commons.wikimedia.org/wiki/File:House_At_25_Clyde_St,_Somerville,_MA_(Right_Side).JPG) | CC BY-SA 3.0 | Hugehands |
+| `exterior-back.jpg` | [File:Luther House Swansea MA, rear.jpg](https://commons.wikimedia.org/wiki/File:Luther_House_Swansea_MA,_rear.jpg) | CC BY-SA 3.0 | Kenneth Zirkel |
+
+The exterior images are resized to 1280 px wide. The front, left, and right show one house. No freely licensed rear view of that house was found, so `exterior-back.jpg` is the rear of a different house. The side checklist only needs a photo per side, so this does not affect the demo, but the four sides are not one real job.
