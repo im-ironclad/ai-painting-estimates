@@ -13,7 +13,8 @@ export class VisionError extends Error {
   }
 }
 
-export type VisionResult = { analysis: PhotoAnalysis; model: string };
+/** `provider` is the backend OpenRouter routed to, when the reply names one. */
+export type VisionResult = { analysis: PhotoAnalysis; model: string; provider?: string };
 
 const SYSTEM_PROMPT = `You are an estimator for a house painting company.
 Look at one photo and extract facts a painter needs to quote the job. Do not price anything.
@@ -39,7 +40,7 @@ function config() {
 }
 
 /** Downscale before upload: the model does not need 12 MP, and tokens cost money. */
-async function toDataUrl(imagePath: string): Promise<string> {
+export async function toDataUrl(imagePath: string): Promise<string> {
   const jpeg = await sharp(await readFile(imagePath))
     .rotate()
     .resize({ width: 1024, height: 1024, fit: "inside", withoutEnlargement: true })
@@ -100,6 +101,7 @@ export async function analyzePhoto(imagePath: string): Promise<VisionResult> {
 
   const payload = (await response.json()) as {
     model?: string;
+    provider?: string;
     choices?: { finish_reason?: string; message?: { content?: string | null } }[];
   };
   const choice = payload.choices?.[0];
@@ -110,5 +112,5 @@ export async function analyzePhoto(imagePath: string): Promise<VisionResult> {
   if (!parsed.ok) {
     throw new VisionError(`${parsed.error} (finish_reason=${choice.finish_reason}, ${content.length} chars)`, true);
   }
-  return { analysis: parsed.analysis, model: payload.model ?? model };
+  return { analysis: parsed.analysis, model: payload.model ?? model, provider: payload.provider };
 }

@@ -16,7 +16,8 @@
     "worker": "node --env-file=.env.local --import tsx worker/index.ts",
     "seed:fixtures": "node --env-file=.env.local --import tsx scripts/seed-fixtures.ts",
     "search:cli": "node --env-file=.env.local --import tsx scripts/search.ts",
-    "verify:live": "node --env-file=.env.local --import tsx scripts/verify-live.ts"
+    "verify:live": "node --env-file=.env.local --import tsx scripts/verify-live.ts",
+    "consistency": "node --env-file=.env.local --import tsx scripts/consistency.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
