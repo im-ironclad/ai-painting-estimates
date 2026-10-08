@@ -3,6 +3,7 @@ import { db } from "@/db/client";
 import { estimates, photos } from "@/db/schema";
 import { summarizeEstimate, type EstimateSummary, type PhotoForEstimate } from "@/domain/estimate";
 import type { ExteriorScope } from "@/domain/exterior";
+import { summarizeHome, type HomeCardSummary } from "@/domain/home-card";
 import type { ExteriorSide, PhotoAnalysis } from "@/domain/photo-analysis";
 import type { PhotoStatus } from "@/domain/photo-status";
 import { pricePhoto, type Price } from "@/domain/pricing";
@@ -36,19 +37,25 @@ export async function createEstimate(name: string): Promise<string> {
   return row.id;
 }
 
-export async function listEstimates() {
-  return db
-    .select({
-      id: estimates.id,
-      name: estimates.name,
-      createdAt: estimates.createdAt,
-      photoCount: sql<number>`count(${photos.id})::int`,
-      analyzedCount: sql<number>`count(${photos.id}) filter (where ${photos.status} = 'analyzed')::int`,
-    })
-    .from(estimates)
-    .leftJoin(photos, eq(photos.estimateId, estimates.id))
-    .groupBy(estimates.id)
-    .orderBy(desc(estimates.createdAt));
+/** Two queries for every home, never one per home. Photos load in the same upload order the estimate page uses. */
+export async function listHomeCards(): Promise<HomeCardSummary[]> {
+  const [homes, rows] = await Promise.all([
+    db
+      .select({ id: estimates.id, name: estimates.name, createdAt: estimates.createdAt, exteriorScope: estimates.exteriorScope })
+      .from(estimates)
+      .orderBy(desc(estimates.createdAt)),
+    db
+      .select({ id: photos.id, estimateId: photos.estimateId, status: photos.status, analysis: photos.analysis, exteriorSide: photos.exteriorSide })
+      .from(photos)
+      .orderBy(asc(photos.createdAt), asc(photos.id)),
+  ]);
+  const byHome = new Map<string, PhotoForEstimate[]>();
+  for (const row of rows) {
+    const list = byHome.get(row.estimateId) ?? [];
+    list.push(forEstimate(row));
+    byHome.set(row.estimateId, list);
+  }
+  return homes.map((home) => summarizeHome(home, byHome.get(home.id) ?? []));
 }
 
 export async function setExteriorScope(id: string, exteriorScope: ExteriorScope): Promise<boolean> {

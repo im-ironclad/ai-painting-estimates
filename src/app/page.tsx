@@ -1,11 +1,9 @@
-import { ChevronRight } from "lucide-react";
-import Link from "next/link";
 import { Suspense } from "react";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { HomeCard } from "@/components/home-card";
 import { NewEstimateForm } from "@/components/new-estimate-form";
 import { PageTransition } from "@/components/page-transition";
 import { PageHeader, Section } from "@/components/section";
-import { listEstimates } from "@/server/estimates";
+import { listHomeCards } from "@/server/estimates";
 
 export default function HomePage() {
   return (
@@ -25,25 +23,13 @@ export default function HomePage() {
 }
 
 async function EstimateList() {
-  const estimates = await listEstimates();
+  const homes = await listHomeCards();
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {estimates.map((e) => (
-        <Link key={e.id} href={`/estimates/${e.id}`} transitionTypes={["nav-forward"]} className="group rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
-          <Card className="h-full transition-shadow group-hover:shadow-md group-hover:ring-primary/40">
-            <CardHeader className="grid-cols-[1fr_auto] items-center">
-              <div className="min-w-0 space-y-1">
-                <CardTitle className="truncate font-semibold">{e.name}</CardTitle>
-                <CardDescription>
-                  {e.analyzedCount} of {e.photoCount} photos analyzed · {e.createdAt.toLocaleDateString()}
-                </CardDescription>
-              </div>
-              <ChevronRight className="size-5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
-            </CardHeader>
-          </Card>
-        </Link>
+      {homes.map((home) => (
+        <HomeCard key={home.id} home={home} />
       ))}
-      {estimates.length === 0 && <p className="text-muted-foreground">No homes yet.</p>}
+      {homes.length === 0 && <p className="text-muted-foreground">No homes yet.</p>}
     </div>
   );
 }
