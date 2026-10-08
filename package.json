@@ -9,13 +9,14 @@
     "start": "next start -p ${PORT:-3100}",
     "lint": "eslint",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "db:up": "docker compose up -d --wait",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "worker": "node --env-file=.env.local --import tsx worker/index.ts",
     "seed:fixtures": "node --env-file=.env.local --import tsx scripts/seed-fixtures.ts",
-    "search:cli": "node --env-file=.env.local --import tsx scripts/search.ts"
+    "search:cli": "node --env-file=.env.local --import tsx scripts/search.ts",
+    "verify:live": "node --env-file=.env.local --import tsx scripts/verify-live.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
