@@ -55,6 +55,7 @@ export async function analyzeRoomPhoto(imagePath: string): Promise<VisionResult>
     model,
     models: [model, ...fallbacks],
     temperature: 0,
+    max_tokens: 4096,
     provider: { require_parameters: true },
     response_format: {
       type: "json_schema",
