@@ -108,10 +108,12 @@ export function EstimateClient({ initial }: { initial: EstimateView }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
-          <span>
-            {summary.roomCount} {summary.roomCount === 1 ? "room" : "rooms"} priced
-            {summary.roomCount > 0 && ` (${formatCents(summary.interiorCents)})`}
-          </span>
+          {(summary.roomCount > 0 || summary.exterior.status === "none") && (
+            <span>
+              {summary.roomCount} {summary.roomCount === 1 ? "room" : "rooms"} priced
+              {summary.roomCount > 0 && ` (${formatCents(summary.interiorCents)})`}
+            </span>
+          )}
           <ExteriorLine exterior={summary.exterior} />
           <span>{summary.gallons} gallons</span>
           {summary.pendingCount > 0 && <span>{summary.pendingCount} still analyzing, not in total</span>}
@@ -180,7 +182,7 @@ function ExteriorPanel(props: {
         <div className="flex flex-wrap gap-2">
           {exterior.scope !== "single_side" && (
             <Button variant={exterior.scope === "undecided" ? "default" : "outline"} onClick={() => onScope("single_side")} data-testid="scope-single">
-              {exterior.coveredSides.length > 1 ? "Just the sides I uploaded" : "Just this side"}
+              {exterior.coveredSides.length > 0 ? `Just the ${listSides(exterior.coveredSides)}` : "Just one side"}
             </Button>
           )}
           {exterior.scope !== "whole_exterior" && (
@@ -242,7 +244,9 @@ function PhotoCard({ photo, onRetry, onSide }: { photo: PhotoView; onRetry: () =
     <Card data-testid="room-card" data-status={photo.status} data-kind={a?.kind}>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div className="space-y-1">
-          <CardTitle className="capitalize">{!a ? photo.originalName : a.kind === "interior" ? label(a.roomType) : "Exterior"}</CardTitle>
+          <CardTitle className={a ? "capitalize" : ""}>
+            {!a ? photo.originalName : a.kind === "interior" ? label(a.roomType) : "Exterior"}
+          </CardTitle>
           <CardDescription>
             {photo.originalName} · attempt {photo.attempts}
             {photo.model && ` · ${photo.model}`}

@@ -9,7 +9,7 @@ export default function HomePage() {
     <div className="space-y-8">
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold">Homes</h1>
-        <p className="text-muted-foreground">Create a home, upload room photos, and get a paint estimate per room.</p>
+        <p className="text-muted-foreground">Create a home, upload room or exterior photos, and get a paint estimate.</p>
       </div>
       <NewEstimateForm />
       <Suspense fallback={<p className="text-muted-foreground">Loading homes...</p>}>
@@ -29,7 +29,7 @@ async function EstimateList() {
             <CardHeader>
               <CardTitle>{e.name}</CardTitle>
               <CardDescription>
-                {e.analyzedCount} of {e.photoCount} rooms analyzed · {e.createdAt.toLocaleDateString()}
+                {e.analyzedCount} of {e.photoCount} photos analyzed · {e.createdAt.toLocaleDateString()}
               </CardDescription>
             </CardHeader>
           </Card>
