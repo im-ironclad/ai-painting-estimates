@@ -23,18 +23,18 @@ async function EstimateList() {
   const estimates = await listEstimates();
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {estimates.map((e) => (
-          <Link key={e.id} href={`/estimates/${e.id}`}>
-            <Card className="h-full transition-colors hover:bg-muted/50">
-              <CardHeader>
-                <CardTitle>{e.name}</CardTitle>
-                <CardDescription>
-                  {e.analyzedCount} of {e.photoCount} rooms analyzed · {e.createdAt.toLocaleDateString()}
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-        ))}
+      {estimates.map((e) => (
+        <Link key={e.id} href={`/estimates/${e.id}`}>
+          <Card className="h-full transition-colors hover:bg-muted/50">
+            <CardHeader>
+              <CardTitle>{e.name}</CardTitle>
+              <CardDescription>
+                {e.analyzedCount} of {e.photoCount} rooms analyzed · {e.createdAt.toLocaleDateString()}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+      ))}
       {estimates.length === 0 && <p className="text-muted-foreground">No homes yet.</p>}
     </div>
   );
