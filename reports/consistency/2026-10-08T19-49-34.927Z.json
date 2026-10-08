@@ -1,0 +1,1862 @@
+{
+  "startedAt": "2026-10-08T19:49:34.927Z",
+  "finishedAt": "2026-10-08T19:49:34.974Z",
+  "runs": 3,
+  "toleranceCents": 0,
+  "openRouterCalls": 0,
+  "visionModel": "google/gemini-3.1-flash-lite",
+  "fallbackModels": "openai/gpt-5-mini",
+  "sets": {
+    "compared": {
+      "estimates": [
+        {
+          "estimateId": "360a351e-9af6-4151-a082-0936685e3d33",
+          "totalCents": 549910,
+          "photos": [
+            {
+              "fileName": "bedroom.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "interior",
+                "prep": {
+                  "patching": false,
+                  "waterDamage": false,
+                  "highCeilings": false,
+                  "wallpaperRemoval": false
+                },
+                "notes": "The room features a large mirrored wall on the left side which should be excluded from the painting area. The walls appear to be in good condition.",
+                "roomType": "bedroom",
+                "surfaces": [
+                  {
+                    "kind": "walls",
+                    "condition": "good",
+                    "estimatedSqFt": 350
+                  }
+                ],
+                "confidence": 0.9,
+                "currentColors": [
+                  "white"
+                ],
+                "ceilingHeightFt": 8,
+                "estimatedFloorSqFt": 150
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "walls paint (2 coats)",
+                    "quantity": 2,
+                    "unit": "gal",
+                    "unitCents": 4500,
+                    "totalCents": 9000
+                  },
+                  {
+                    "label": "walls labor (good)",
+                    "quantity": 350,
+                    "unit": "sq ft",
+                    "unitCents": 150,
+                    "totalCents": 52500
+                  }
+                ],
+                "gallons": 2,
+                "totalCents": 61500
+              }
+            },
+            {
+              "fileName": "kitchen.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "interior",
+                "prep": {
+                  "patching": false,
+                  "waterDamage": false,
+                  "highCeilings": false,
+                  "wallpaperRemoval": false
+                },
+                "notes": "The kitchen cabinets are a light grey and the walls are white. The space is open concept connecting the kitchen and living area.",
+                "roomType": "living_room",
+                "surfaces": [
+                  {
+                    "kind": "walls",
+                    "condition": "good",
+                    "estimatedSqFt": 450
+                  },
+                  {
+                    "kind": "ceiling",
+                    "condition": "good",
+                    "estimatedSqFt": 300
+                  },
+                  {
+                    "kind": "cabinets",
+                    "condition": "good",
+                    "estimatedSqFt": 120
+                  }
+                ],
+                "confidence": 0.9,
+                "currentColors": [
+                  "white",
+                  "light grey"
+                ],
+                "ceilingHeightFt": 8,
+                "estimatedFloorSqFt": 300
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "walls paint (2 coats)",
+                    "quantity": 3,
+                    "unit": "gal",
+                    "unitCents": 4500,
+                    "totalCents": 13500
+                  },
+                  {
+                    "label": "walls labor (good)",
+                    "quantity": 450,
+                    "unit": "sq ft",
+                    "unitCents": 150,
+                    "totalCents": 67500
+                  },
+                  {
+                    "label": "ceiling paint (2 coats)",
+                    "quantity": 2,
+                    "unit": "gal",
+                    "unitCents": 4000,
+                    "totalCents": 8000
+                  },
+                  {
+                    "label": "ceiling labor (good)",
+                    "quantity": 300,
+                    "unit": "sq ft",
+                    "unitCents": 175,
+                    "totalCents": 52500
+                  },
+                  {
+                    "label": "cabinets paint (3 coats)",
+                    "quantity": 2,
+                    "unit": "gal",
+                    "unitCents": 7500,
+                    "totalCents": 15000
+                  },
+                  {
+                    "label": "cabinets labor (good)",
+                    "quantity": 120,
+                    "unit": "sq ft",
+                    "unitCents": 400,
+                    "totalCents": 48000
+                  }
+                ],
+                "gallons": 7,
+                "totalCents": 204500
+              }
+            },
+            {
+              "fileName": "water-damaged-ceiling.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "interior",
+                "prep": {
+                  "patching": true,
+                  "waterDamage": true,
+                  "highCeilings": false,
+                  "wallpaperRemoval": false
+                },
+                "notes": "The ceiling shows significant water damage and peeling paint. The source of the leak must be repaired before any painting can occur.",
+                "roomType": "other",
+                "surfaces": [
+                  {
+                    "kind": "ceiling",
+                    "condition": "poor",
+                    "estimatedSqFt": 10
+                  }
+                ],
+                "confidence": 0.9,
+                "currentColors": [
+                  "white"
+                ],
+                "ceilingHeightFt": 8,
+                "estimatedFloorSqFt": 100
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "ceiling paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 4000,
+                    "totalCents": 4000
+                  },
+                  {
+                    "label": "ceiling labor (poor)",
+                    "quantity": 10,
+                    "unit": "sq ft",
+                    "unitCents": 236,
+                    "totalCents": 2360
+                  },
+                  {
+                    "label": "Patching and sanding",
+                    "quantity": 1,
+                    "unit": "flat",
+                    "unitCents": 15000,
+                    "totalCents": 15000
+                  },
+                  {
+                    "label": "Water damage repair and stain-block primer",
+                    "quantity": 1,
+                    "unit": "flat",
+                    "unitCents": 25000,
+                    "totalCents": 25000
+                  }
+                ],
+                "gallons": 1,
+                "totalCents": 46360
+              }
+            },
+            {
+              "fileName": "bathroom.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "interior",
+                "prep": {
+                  "patching": false,
+                  "waterDamage": false,
+                  "highCeilings": false,
+                  "wallpaperRemoval": false
+                },
+                "notes": "The bathroom has a large wall-to-wall mirror and a glass shower enclosure. The vanity cabinets are wood veneer and appear to be in good condition.",
+                "roomType": "bathroom",
+                "surfaces": [
+                  {
+                    "kind": "walls",
+                    "condition": "good",
+                    "estimatedSqFt": 80
+                  },
+                  {
+                    "kind": "ceiling",
+                    "condition": "good",
+                    "estimatedSqFt": 60
+                  },
+                  {
+                    "kind": "cabinets",
+                    "condition": "good",
+                    "estimatedSqFt": 30
+                  }
+                ],
+                "confidence": 0.9,
+                "currentColors": [
+                  "white"
+                ],
+                "ceilingHeightFt": 8,
+                "estimatedFloorSqFt": 60
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "walls paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 4500,
+                    "totalCents": 4500
+                  },
+                  {
+                    "label": "walls labor (good)",
+                    "quantity": 80,
+                    "unit": "sq ft",
+                    "unitCents": 150,
+                    "totalCents": 12000
+                  },
+                  {
+                    "label": "ceiling paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 4000,
+                    "totalCents": 4000
+                  },
+                  {
+                    "label": "ceiling labor (good)",
+                    "quantity": 60,
+                    "unit": "sq ft",
+                    "unitCents": 175,
+                    "totalCents": 10500
+                  },
+                  {
+                    "label": "cabinets paint (3 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 7500,
+                    "totalCents": 7500
+                  },
+                  {
+                    "label": "cabinets labor (good)",
+                    "quantity": 30,
+                    "unit": "sq ft",
+                    "unitCents": 400,
+                    "totalCents": 12000
+                  }
+                ],
+                "gallons": 3,
+                "totalCents": 50500
+              }
+            },
+            {
+              "fileName": "living-room.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "interior",
+                "prep": {
+                  "patching": false,
+                  "waterDamage": false,
+                  "highCeilings": false,
+                  "wallpaperRemoval": false
+                },
+                "notes": "The room has large windows and a tongue-and-groove style ceiling. The walls appear to be in good condition.",
+                "roomType": "living_room",
+                "surfaces": [
+                  {
+                    "kind": "walls",
+                    "condition": "good",
+                    "estimatedSqFt": 450
+                  },
+                  {
+                    "kind": "ceiling",
+                    "condition": "good",
+                    "estimatedSqFt": 350
+                  }
+                ],
+                "confidence": 0.9,
+                "currentColors": [
+                  "white"
+                ],
+                "ceilingHeightFt": 9,
+                "estimatedFloorSqFt": 350
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "walls paint (2 coats)",
+                    "quantity": 3,
+                    "unit": "gal",
+                    "unitCents": 4500,
+                    "totalCents": 13500
+                  },
+                  {
+                    "label": "walls labor (good)",
+                    "quantity": 450,
+                    "unit": "sq ft",
+                    "unitCents": 150,
+                    "totalCents": 67500
+                  },
+                  {
+                    "label": "ceiling paint (2 coats)",
+                    "quantity": 2,
+                    "unit": "gal",
+                    "unitCents": 4000,
+                    "totalCents": 8000
+                  },
+                  {
+                    "label": "ceiling labor (good)",
+                    "quantity": 350,
+                    "unit": "sq ft",
+                    "unitCents": 175,
+                    "totalCents": 61250
+                  }
+                ],
+                "gallons": 5,
+                "totalCents": 150250
+              }
+            },
+            {
+              "fileName": "living-room-rural.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "interior",
+                "prep": {
+                  "patching": true,
+                  "waterDamage": false,
+                  "highCeilings": false,
+                  "wallpaperRemoval": false
+                },
+                "notes": "The wall has a very rough, textured plaster finish that will require significant prep and likely more paint than a smooth wall. Numerous picture frames will need to be removed and holes patched.",
+                "roomType": "other",
+                "surfaces": [
+                  {
+                    "kind": "walls",
+                    "condition": "fair",
+                    "estimatedSqFt": 100
+                  }
+                ],
+                "confidence": 0.8,
+                "currentColors": [
+                  "beige"
+                ],
+                "ceilingHeightFt": 8,
+                "estimatedFloorSqFt": 0
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "walls paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 4500,
+                    "totalCents": 4500
+                  },
+                  {
+                    "label": "walls labor (fair)",
+                    "quantity": 100,
+                    "unit": "sq ft",
+                    "unitCents": 173,
+                    "totalCents": 17300
+                  },
+                  {
+                    "label": "Patching and sanding",
+                    "quantity": 1,
+                    "unit": "flat",
+                    "unitCents": 15000,
+                    "totalCents": 15000
+                  }
+                ],
+                "gallons": 1,
+                "totalCents": 36800
+              }
+            },
+            {
+              "fileName": "exterior-front.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "exterior",
+                "prep": {
+                  "mildew": false,
+                  "peeling": true,
+                  "woodRot": true,
+                  "failedCaulk": true
+                },
+                "notes": "The exterior wood siding and the wooden staircase/landing show significant signs of wear and peeling paint. The trim around the windows and doors will require extensive scraping and caulking.",
+                "stories": 2,
+                "surfaces": [
+                  {
+                    "kind": "siding",
+                    "condition": "fair",
+                    "estimatedSqFt": 750
+                  },
+                  {
+                    "kind": "trim",
+                    "condition": "fair",
+                    "estimatedSqFt": 150
+                  },
+                  {
+                    "kind": "doors",
+                    "condition": "fair",
+                    "estimatedSqFt": 40
+                  },
+                  {
+                    "kind": "deck_porch",
+                    "condition": "poor",
+                    "estimatedSqFt": 80
+                  }
+                ],
+                "sideGuess": "front",
+                "confidence": 0.9,
+                "currentColors": [
+                  "red",
+                  "white"
+                ],
+                "sidingMaterial": "wood"
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "siding paint (2 coats)",
+                    "quantity": 5,
+                    "unit": "gal",
+                    "unitCents": 6000,
+                    "totalCents": 30000
+                  },
+                  {
+                    "label": "siding labor (fair)",
+                    "quantity": 750,
+                    "unit": "sq ft",
+                    "unitCents": 567,
+                    "totalCents": 425250
+                  },
+                  {
+                    "label": "trim paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 6500
+                  },
+                  {
+                    "label": "trim labor (fair)",
+                    "quantity": 150,
+                    "unit": "sq ft",
+                    "unitCents": 827,
+                    "totalCents": 124050
+                  },
+                  {
+                    "label": "doors paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 6500
+                  },
+                  {
+                    "label": "doors labor (fair)",
+                    "quantity": 40,
+                    "unit": "sq ft",
+                    "unitCents": 567,
+                    "totalCents": 22680
+                  },
+                  {
+                    "label": "deck porch paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 5500,
+                    "totalCents": 5500
+                  },
+                  {
+                    "label": "deck porch labor (poor)",
+                    "quantity": 80,
+                    "unit": "sq ft",
+                    "unitCents": 555,
+                    "totalCents": 44400
+                  }
+                ],
+                "gallons": 8,
+                "totalCents": 664880
+              }
+            },
+            {
+              "fileName": "exterior-left.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "exterior",
+                "prep": {
+                  "mildew": false,
+                  "peeling": true,
+                  "woodRot": true,
+                  "failedCaulk": true
+                },
+                "notes": "The wood shingle siding shows signs of weathering and will require significant scraping and priming. The exterior staircase and porch railing also need attention.",
+                "stories": 2,
+                "surfaces": [
+                  {
+                    "kind": "siding",
+                    "condition": "fair",
+                    "estimatedSqFt": 1200
+                  },
+                  {
+                    "kind": "trim",
+                    "condition": "fair",
+                    "estimatedSqFt": 250
+                  },
+                  {
+                    "kind": "doors",
+                    "condition": "fair",
+                    "estimatedSqFt": 40
+                  },
+                  {
+                    "kind": "deck_porch",
+                    "condition": "fair",
+                    "estimatedSqFt": 80
+                  }
+                ],
+                "sideGuess": "front",
+                "confidence": 0.9,
+                "currentColors": [
+                  "red"
+                ],
+                "sidingMaterial": "wood"
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "siding paint (2 coats)",
+                    "quantity": 8,
+                    "unit": "gal",
+                    "unitCents": 6000,
+                    "totalCents": 48000
+                  },
+                  {
+                    "label": "siding labor (fair)",
+                    "quantity": 1200,
+                    "unit": "sq ft",
+                    "unitCents": 567,
+                    "totalCents": 680400
+                  },
+                  {
+                    "label": "trim paint (2 coats)",
+                    "quantity": 2,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 13000
+                  },
+                  {
+                    "label": "trim labor (fair)",
+                    "quantity": 250,
+                    "unit": "sq ft",
+                    "unitCents": 827,
+                    "totalCents": 206750
+                  },
+                  {
+                    "label": "doors paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 6500
+                  },
+                  {
+                    "label": "doors labor (fair)",
+                    "quantity": 40,
+                    "unit": "sq ft",
+                    "unitCents": 567,
+                    "totalCents": 22680
+                  },
+                  {
+                    "label": "deck porch paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 5500,
+                    "totalCents": 5500
+                  },
+                  {
+                    "label": "deck porch labor (fair)",
+                    "quantity": 80,
+                    "unit": "sq ft",
+                    "unitCents": 473,
+                    "totalCents": 37840
+                  }
+                ],
+                "gallons": 12,
+                "totalCents": 1020670
+              }
+            },
+            {
+              "fileName": "exterior-right.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "exterior",
+                "prep": {
+                  "mildew": true,
+                  "peeling": true,
+                  "woodRot": true,
+                  "failedCaulk": true
+                },
+                "notes": "The wood shingle siding shows significant weathering and vine growth. The exterior staircase and porch area require substantial repair and prep work.",
+                "stories": 2,
+                "surfaces": [
+                  {
+                    "kind": "siding",
+                    "condition": "fair",
+                    "estimatedSqFt": 750
+                  },
+                  {
+                    "kind": "trim",
+                    "condition": "fair",
+                    "estimatedSqFt": 150
+                  },
+                  {
+                    "kind": "doors",
+                    "condition": "fair",
+                    "estimatedSqFt": 40
+                  },
+                  {
+                    "kind": "deck_porch",
+                    "condition": "poor",
+                    "estimatedSqFt": 60
+                  }
+                ],
+                "sideGuess": "front",
+                "confidence": 0.9,
+                "currentColors": [
+                  "red"
+                ],
+                "sidingMaterial": "wood"
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "siding paint (2 coats)",
+                    "quantity": 5,
+                    "unit": "gal",
+                    "unitCents": 6000,
+                    "totalCents": 30000
+                  },
+                  {
+                    "label": "siding labor (fair)",
+                    "quantity": 750,
+                    "unit": "sq ft",
+                    "unitCents": 624,
+                    "totalCents": 468000
+                  },
+                  {
+                    "label": "trim paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 6500
+                  },
+                  {
+                    "label": "trim labor (fair)",
+                    "quantity": 150,
+                    "unit": "sq ft",
+                    "unitCents": 910,
+                    "totalCents": 136500
+                  },
+                  {
+                    "label": "doors paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 6500
+                  },
+                  {
+                    "label": "doors labor (fair)",
+                    "quantity": 40,
+                    "unit": "sq ft",
+                    "unitCents": 624,
+                    "totalCents": 24960
+                  },
+                  {
+                    "label": "deck porch paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 5500,
+                    "totalCents": 5500
+                  },
+                  {
+                    "label": "deck porch labor (poor)",
+                    "quantity": 60,
+                    "unit": "sq ft",
+                    "unitCents": 611,
+                    "totalCents": 36660
+                  }
+                ],
+                "gallons": 8,
+                "totalCents": 714620
+              }
+            },
+            {
+              "fileName": "exterior-back.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "exterior",
+                "prep": {
+                  "mildew": true,
+                  "peeling": true,
+                  "woodRot": true,
+                  "failedCaulk": true
+                },
+                "notes": "The house features weathered wood shingles that appear to be in fair condition but show signs of aging and potential mildew. The trim around the windows and roofline will require significant scraping and caulking before repainting.",
+                "stories": 1,
+                "surfaces": [
+                  {
+                    "kind": "siding",
+                    "condition": "fair",
+                    "estimatedSqFt": 850
+                  },
+                  {
+                    "kind": "trim",
+                    "condition": "fair",
+                    "estimatedSqFt": 150
+                  }
+                ],
+                "sideGuess": "front",
+                "confidence": 0.9,
+                "currentColors": [
+                  "grey"
+                ],
+                "sidingMaterial": "wood"
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "siding paint (2 coats)",
+                    "quantity": 6,
+                    "unit": "gal",
+                    "unitCents": 6000,
+                    "totalCents": 36000
+                  },
+                  {
+                    "label": "siding labor (fair)",
+                    "quantity": 850,
+                    "unit": "sq ft",
+                    "unitCents": 499,
+                    "totalCents": 424150
+                  },
+                  {
+                    "label": "trim paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 6500
+                  },
+                  {
+                    "label": "trim labor (fair)",
+                    "quantity": 150,
+                    "unit": "sq ft",
+                    "unitCents": 728,
+                    "totalCents": 109200
+                  }
+                ],
+                "gallons": 7,
+                "totalCents": 575850
+              }
+            }
+          ]
+        },
+        {
+          "estimateId": "11cfa3b8-eefb-4b74-b55c-fcd66e8941e2",
+          "totalCents": 538410,
+          "photos": [
+            {
+              "fileName": "bedroom.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "interior",
+                "prep": {
+                  "patching": false,
+                  "waterDamage": false,
+                  "highCeilings": false,
+                  "wallpaperRemoval": false
+                },
+                "notes": "The room features a large mirrored wall on the left side which should be excluded from the painting area. The walls appear to be in good condition.",
+                "roomType": "bedroom",
+                "surfaces": [
+                  {
+                    "kind": "walls",
+                    "condition": "good",
+                    "estimatedSqFt": 350
+                  }
+                ],
+                "confidence": 0.9,
+                "currentColors": [
+                  "white"
+                ],
+                "ceilingHeightFt": 8,
+                "estimatedFloorSqFt": 150
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "walls paint (2 coats)",
+                    "quantity": 2,
+                    "unit": "gal",
+                    "unitCents": 4500,
+                    "totalCents": 9000
+                  },
+                  {
+                    "label": "walls labor (good)",
+                    "quantity": 350,
+                    "unit": "sq ft",
+                    "unitCents": 150,
+                    "totalCents": 52500
+                  }
+                ],
+                "gallons": 2,
+                "totalCents": 61500
+              }
+            },
+            {
+              "fileName": "kitchen.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "interior",
+                "prep": {
+                  "patching": false,
+                  "waterDamage": false,
+                  "highCeilings": false,
+                  "wallpaperRemoval": false
+                },
+                "notes": "The kitchen cabinets are a light grey and the walls are white. The space is open concept connecting the kitchen and living area.",
+                "roomType": "living_room",
+                "surfaces": [
+                  {
+                    "kind": "walls",
+                    "condition": "good",
+                    "estimatedSqFt": 450
+                  },
+                  {
+                    "kind": "ceiling",
+                    "condition": "good",
+                    "estimatedSqFt": 300
+                  },
+                  {
+                    "kind": "cabinets",
+                    "condition": "good",
+                    "estimatedSqFt": 120
+                  }
+                ],
+                "confidence": 0.9,
+                "currentColors": [
+                  "white",
+                  "light grey"
+                ],
+                "ceilingHeightFt": 8,
+                "estimatedFloorSqFt": 300
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "walls paint (2 coats)",
+                    "quantity": 3,
+                    "unit": "gal",
+                    "unitCents": 4500,
+                    "totalCents": 13500
+                  },
+                  {
+                    "label": "walls labor (good)",
+                    "quantity": 450,
+                    "unit": "sq ft",
+                    "unitCents": 150,
+                    "totalCents": 67500
+                  },
+                  {
+                    "label": "ceiling paint (2 coats)",
+                    "quantity": 2,
+                    "unit": "gal",
+                    "unitCents": 4000,
+                    "totalCents": 8000
+                  },
+                  {
+                    "label": "ceiling labor (good)",
+                    "quantity": 300,
+                    "unit": "sq ft",
+                    "unitCents": 175,
+                    "totalCents": 52500
+                  },
+                  {
+                    "label": "cabinets paint (3 coats)",
+                    "quantity": 2,
+                    "unit": "gal",
+                    "unitCents": 7500,
+                    "totalCents": 15000
+                  },
+                  {
+                    "label": "cabinets labor (good)",
+                    "quantity": 120,
+                    "unit": "sq ft",
+                    "unitCents": 400,
+                    "totalCents": 48000
+                  }
+                ],
+                "gallons": 7,
+                "totalCents": 204500
+              }
+            },
+            {
+              "fileName": "water-damaged-ceiling.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "interior",
+                "prep": {
+                  "patching": true,
+                  "waterDamage": true,
+                  "highCeilings": false,
+                  "wallpaperRemoval": false
+                },
+                "notes": "The ceiling shows significant water damage and peeling paint. The source of the leak must be repaired before any painting can occur.",
+                "roomType": "other",
+                "surfaces": [
+                  {
+                    "kind": "ceiling",
+                    "condition": "poor",
+                    "estimatedSqFt": 10
+                  }
+                ],
+                "confidence": 0.9,
+                "currentColors": [
+                  "white"
+                ],
+                "ceilingHeightFt": 8,
+                "estimatedFloorSqFt": 100
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "ceiling paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 4000,
+                    "totalCents": 4000
+                  },
+                  {
+                    "label": "ceiling labor (poor)",
+                    "quantity": 10,
+                    "unit": "sq ft",
+                    "unitCents": 236,
+                    "totalCents": 2360
+                  },
+                  {
+                    "label": "Patching and sanding",
+                    "quantity": 1,
+                    "unit": "flat",
+                    "unitCents": 15000,
+                    "totalCents": 15000
+                  },
+                  {
+                    "label": "Water damage repair and stain-block primer",
+                    "quantity": 1,
+                    "unit": "flat",
+                    "unitCents": 25000,
+                    "totalCents": 25000
+                  }
+                ],
+                "gallons": 1,
+                "totalCents": 46360
+              }
+            },
+            {
+              "fileName": "bathroom.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "interior",
+                "prep": {
+                  "patching": false,
+                  "waterDamage": false,
+                  "highCeilings": false,
+                  "wallpaperRemoval": false
+                },
+                "notes": "The bathroom features a large wall-to-wall mirror and a glass shower enclosure. The vanity cabinets are wood veneer and would require specialized prep for painting.",
+                "roomType": "bathroom",
+                "surfaces": [
+                  {
+                    "kind": "walls",
+                    "condition": "good",
+                    "estimatedSqFt": 80
+                  },
+                  {
+                    "kind": "cabinets",
+                    "condition": "good",
+                    "estimatedSqFt": 30
+                  }
+                ],
+                "confidence": 0.9,
+                "currentColors": [
+                  "white"
+                ],
+                "ceilingHeightFt": 8,
+                "estimatedFloorSqFt": 60
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "walls paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 4500,
+                    "totalCents": 4500
+                  },
+                  {
+                    "label": "walls labor (good)",
+                    "quantity": 80,
+                    "unit": "sq ft",
+                    "unitCents": 150,
+                    "totalCents": 12000
+                  },
+                  {
+                    "label": "cabinets paint (3 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 7500,
+                    "totalCents": 7500
+                  },
+                  {
+                    "label": "cabinets labor (good)",
+                    "quantity": 30,
+                    "unit": "sq ft",
+                    "unitCents": 400,
+                    "totalCents": 12000
+                  }
+                ],
+                "gallons": 2,
+                "totalCents": 36000
+              }
+            },
+            {
+              "fileName": "living-room.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "interior",
+                "prep": {
+                  "patching": false,
+                  "waterDamage": false,
+                  "highCeilings": false,
+                  "wallpaperRemoval": false
+                },
+                "notes": "The room has large windows and a tongue-and-groove style ceiling. The walls appear to be in good condition.",
+                "roomType": "living_room",
+                "surfaces": [
+                  {
+                    "kind": "walls",
+                    "condition": "good",
+                    "estimatedSqFt": 450
+                  },
+                  {
+                    "kind": "ceiling",
+                    "condition": "good",
+                    "estimatedSqFt": 350
+                  }
+                ],
+                "confidence": 0.9,
+                "currentColors": [
+                  "white"
+                ],
+                "ceilingHeightFt": 9,
+                "estimatedFloorSqFt": 350
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "walls paint (2 coats)",
+                    "quantity": 3,
+                    "unit": "gal",
+                    "unitCents": 4500,
+                    "totalCents": 13500
+                  },
+                  {
+                    "label": "walls labor (good)",
+                    "quantity": 450,
+                    "unit": "sq ft",
+                    "unitCents": 150,
+                    "totalCents": 67500
+                  },
+                  {
+                    "label": "ceiling paint (2 coats)",
+                    "quantity": 2,
+                    "unit": "gal",
+                    "unitCents": 4000,
+                    "totalCents": 8000
+                  },
+                  {
+                    "label": "ceiling labor (good)",
+                    "quantity": 350,
+                    "unit": "sq ft",
+                    "unitCents": 175,
+                    "totalCents": 61250
+                  }
+                ],
+                "gallons": 5,
+                "totalCents": 150250
+              }
+            },
+            {
+              "fileName": "living-room-rural.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "interior",
+                "prep": {
+                  "patching": true,
+                  "waterDamage": false,
+                  "highCeilings": false,
+                  "wallpaperRemoval": false
+                },
+                "notes": "The wall surface is highly textured, likely stucco or rough plaster, which will require significant primer and paint. The surface is in poor condition with visible cracks and uneven texture.",
+                "roomType": "other",
+                "surfaces": [
+                  {
+                    "kind": "walls",
+                    "condition": "poor",
+                    "estimatedSqFt": 100
+                  }
+                ],
+                "confidence": 0.8,
+                "currentColors": [
+                  "peach",
+                  "tan"
+                ],
+                "ceilingHeightFt": 8,
+                "estimatedFloorSqFt": 0
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "walls paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 4500,
+                    "totalCents": 4500
+                  },
+                  {
+                    "label": "walls labor (poor)",
+                    "quantity": 100,
+                    "unit": "sq ft",
+                    "unitCents": 203,
+                    "totalCents": 20300
+                  },
+                  {
+                    "label": "Patching and sanding",
+                    "quantity": 1,
+                    "unit": "flat",
+                    "unitCents": 15000,
+                    "totalCents": 15000
+                  }
+                ],
+                "gallons": 1,
+                "totalCents": 39800
+              }
+            },
+            {
+              "fileName": "exterior-front.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "exterior",
+                "prep": {
+                  "mildew": false,
+                  "peeling": true,
+                  "woodRot": true,
+                  "failedCaulk": true
+                },
+                "notes": "The exterior wood siding and the wooden staircase/landing show significant signs of wear and peeling paint. The trim around the windows and doors will require extensive scraping and caulking.",
+                "stories": 2,
+                "surfaces": [
+                  {
+                    "kind": "siding",
+                    "condition": "fair",
+                    "estimatedSqFt": 750
+                  },
+                  {
+                    "kind": "trim",
+                    "condition": "fair",
+                    "estimatedSqFt": 150
+                  },
+                  {
+                    "kind": "doors",
+                    "condition": "fair",
+                    "estimatedSqFt": 40
+                  },
+                  {
+                    "kind": "deck_porch",
+                    "condition": "poor",
+                    "estimatedSqFt": 80
+                  }
+                ],
+                "sideGuess": "front",
+                "confidence": 0.9,
+                "currentColors": [
+                  "red",
+                  "white"
+                ],
+                "sidingMaterial": "wood"
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "siding paint (2 coats)",
+                    "quantity": 5,
+                    "unit": "gal",
+                    "unitCents": 6000,
+                    "totalCents": 30000
+                  },
+                  {
+                    "label": "siding labor (fair)",
+                    "quantity": 750,
+                    "unit": "sq ft",
+                    "unitCents": 567,
+                    "totalCents": 425250
+                  },
+                  {
+                    "label": "trim paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 6500
+                  },
+                  {
+                    "label": "trim labor (fair)",
+                    "quantity": 150,
+                    "unit": "sq ft",
+                    "unitCents": 827,
+                    "totalCents": 124050
+                  },
+                  {
+                    "label": "doors paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 6500
+                  },
+                  {
+                    "label": "doors labor (fair)",
+                    "quantity": 40,
+                    "unit": "sq ft",
+                    "unitCents": 567,
+                    "totalCents": 22680
+                  },
+                  {
+                    "label": "deck porch paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 5500,
+                    "totalCents": 5500
+                  },
+                  {
+                    "label": "deck porch labor (poor)",
+                    "quantity": 80,
+                    "unit": "sq ft",
+                    "unitCents": 555,
+                    "totalCents": 44400
+                  }
+                ],
+                "gallons": 8,
+                "totalCents": 664880
+              }
+            },
+            {
+              "fileName": "exterior-left.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "exterior",
+                "prep": {
+                  "mildew": false,
+                  "peeling": true,
+                  "woodRot": true,
+                  "failedCaulk": true
+                },
+                "notes": "The wood shingle siding shows signs of weathering and will require significant scraping and priming. The exterior staircase and porch railing also need attention.",
+                "stories": 2,
+                "surfaces": [
+                  {
+                    "kind": "siding",
+                    "condition": "fair",
+                    "estimatedSqFt": 1200
+                  },
+                  {
+                    "kind": "trim",
+                    "condition": "fair",
+                    "estimatedSqFt": 250
+                  },
+                  {
+                    "kind": "doors",
+                    "condition": "fair",
+                    "estimatedSqFt": 40
+                  },
+                  {
+                    "kind": "deck_porch",
+                    "condition": "fair",
+                    "estimatedSqFt": 80
+                  }
+                ],
+                "sideGuess": "front",
+                "confidence": 0.9,
+                "currentColors": [
+                  "red"
+                ],
+                "sidingMaterial": "wood"
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "siding paint (2 coats)",
+                    "quantity": 8,
+                    "unit": "gal",
+                    "unitCents": 6000,
+                    "totalCents": 48000
+                  },
+                  {
+                    "label": "siding labor (fair)",
+                    "quantity": 1200,
+                    "unit": "sq ft",
+                    "unitCents": 567,
+                    "totalCents": 680400
+                  },
+                  {
+                    "label": "trim paint (2 coats)",
+                    "quantity": 2,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 13000
+                  },
+                  {
+                    "label": "trim labor (fair)",
+                    "quantity": 250,
+                    "unit": "sq ft",
+                    "unitCents": 827,
+                    "totalCents": 206750
+                  },
+                  {
+                    "label": "doors paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 6500
+                  },
+                  {
+                    "label": "doors labor (fair)",
+                    "quantity": 40,
+                    "unit": "sq ft",
+                    "unitCents": 567,
+                    "totalCents": 22680
+                  },
+                  {
+                    "label": "deck porch paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 5500,
+                    "totalCents": 5500
+                  },
+                  {
+                    "label": "deck porch labor (fair)",
+                    "quantity": 80,
+                    "unit": "sq ft",
+                    "unitCents": 473,
+                    "totalCents": 37840
+                  }
+                ],
+                "gallons": 12,
+                "totalCents": 1020670
+              }
+            },
+            {
+              "fileName": "exterior-right.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "exterior",
+                "prep": {
+                  "mildew": true,
+                  "peeling": true,
+                  "woodRot": true,
+                  "failedCaulk": true
+                },
+                "notes": "The wood shingle siding shows significant weathering and vine growth. The exterior staircase and porch area require substantial repair and prep work.",
+                "stories": 2,
+                "surfaces": [
+                  {
+                    "kind": "siding",
+                    "condition": "fair",
+                    "estimatedSqFt": 750
+                  },
+                  {
+                    "kind": "trim",
+                    "condition": "fair",
+                    "estimatedSqFt": 150
+                  },
+                  {
+                    "kind": "doors",
+                    "condition": "fair",
+                    "estimatedSqFt": 40
+                  },
+                  {
+                    "kind": "deck_porch",
+                    "condition": "poor",
+                    "estimatedSqFt": 60
+                  }
+                ],
+                "sideGuess": "front",
+                "confidence": 0.9,
+                "currentColors": [
+                  "red"
+                ],
+                "sidingMaterial": "wood"
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "siding paint (2 coats)",
+                    "quantity": 5,
+                    "unit": "gal",
+                    "unitCents": 6000,
+                    "totalCents": 30000
+                  },
+                  {
+                    "label": "siding labor (fair)",
+                    "quantity": 750,
+                    "unit": "sq ft",
+                    "unitCents": 624,
+                    "totalCents": 468000
+                  },
+                  {
+                    "label": "trim paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 6500
+                  },
+                  {
+                    "label": "trim labor (fair)",
+                    "quantity": 150,
+                    "unit": "sq ft",
+                    "unitCents": 910,
+                    "totalCents": 136500
+                  },
+                  {
+                    "label": "doors paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 6500
+                  },
+                  {
+                    "label": "doors labor (fair)",
+                    "quantity": 40,
+                    "unit": "sq ft",
+                    "unitCents": 624,
+                    "totalCents": 24960
+                  },
+                  {
+                    "label": "deck porch paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 5500,
+                    "totalCents": 5500
+                  },
+                  {
+                    "label": "deck porch labor (poor)",
+                    "quantity": 60,
+                    "unit": "sq ft",
+                    "unitCents": 611,
+                    "totalCents": 36660
+                  }
+                ],
+                "gallons": 8,
+                "totalCents": 714620
+              }
+            },
+            {
+              "fileName": "exterior-back.jpg",
+              "model": "google/gemini-3.1-flash-lite",
+              "provider": null,
+              "analysis": {
+                "kind": "exterior",
+                "prep": {
+                  "mildew": true,
+                  "peeling": true,
+                  "woodRot": true,
+                  "failedCaulk": true
+                },
+                "notes": "The house features weathered wood shingles that appear to be in fair condition but show signs of aging and potential mildew. The trim around the windows and roofline will require significant scraping and caulking before repainting.",
+                "stories": 1,
+                "surfaces": [
+                  {
+                    "kind": "siding",
+                    "condition": "fair",
+                    "estimatedSqFt": 850
+                  },
+                  {
+                    "kind": "trim",
+                    "condition": "fair",
+                    "estimatedSqFt": 150
+                  }
+                ],
+                "sideGuess": "front",
+                "confidence": 0.9,
+                "currentColors": [
+                  "grey"
+                ],
+                "sidingMaterial": "wood"
+              },
+              "price": {
+                "lineItems": [
+                  {
+                    "label": "siding paint (2 coats)",
+                    "quantity": 6,
+                    "unit": "gal",
+                    "unitCents": 6000,
+                    "totalCents": 36000
+                  },
+                  {
+                    "label": "siding labor (fair)",
+                    "quantity": 850,
+                    "unit": "sq ft",
+                    "unitCents": 499,
+                    "totalCents": 424150
+                  },
+                  {
+                    "label": "trim paint (2 coats)",
+                    "quantity": 1,
+                    "unit": "gal",
+                    "unitCents": 6500,
+                    "totalCents": 6500
+                  },
+                  {
+                    "label": "trim labor (fair)",
+                    "quantity": 150,
+                    "unit": "sq ft",
+                    "unitCents": 728,
+                    "totalCents": 109200
+                  }
+                ],
+                "gallons": 7,
+                "totalCents": 575850
+              }
+            }
+          ]
+        }
+      ],
+      "comparison": {
+        "totalsCents": [
+          549910,
+          538410
+        ],
+        "spreadCents": 11500,
+        "toleranceCents": 0,
+        "withinTolerance": false,
+        "photos": [
+          {
+            "fileName": "bathroom.jpg",
+            "totalsCents": [
+              50500,
+              36000
+            ],
+            "routes": [
+              "google/gemini-3.1-flash-lite",
+              "google/gemini-3.1-flash-lite"
+            ],
+            "analysisDiffs": [
+              {
+                "path": "notes",
+                "values": [
+                  "The bathroom has a large wall-to-wall mirror and a glass shower enclosure. The vanity cabinets are wood veneer and appear to be in good condition.",
+                  "The bathroom features a large wall-to-wall mirror and a glass shower enclosure. The vanity cabinets are wood veneer and would require specialized prep for painting."
+                ]
+              },
+              {
+                "path": "surfaces[ceiling].condition",
+                "values": [
+                  "good",
+                  null
+                ]
+              },
+              {
+                "path": "surfaces[ceiling].estimatedSqFt",
+                "values": [
+                  60,
+                  null
+                ]
+              },
+              {
+                "path": "surfaces[ceiling].kind",
+                "values": [
+                  "ceiling",
+                  null
+                ]
+              }
+            ],
+            "lineItemDiffs": [
+              {
+                "path": "ceiling labor (good).quantity",
+                "values": [
+                  60,
+                  null
+                ]
+              },
+              {
+                "path": "ceiling labor (good).unitCents",
+                "values": [
+                  175,
+                  null
+                ]
+              },
+              {
+                "path": "ceiling paint (2 coats).quantity",
+                "values": [
+                  1,
+                  null
+                ]
+              },
+              {
+                "path": "ceiling paint (2 coats).unitCents",
+                "values": [
+                  4000,
+                  null
+                ]
+              }
+            ]
+          },
+          {
+            "fileName": "bedroom.jpg",
+            "totalsCents": [
+              61500,
+              61500
+            ],
+            "routes": [
+              "google/gemini-3.1-flash-lite",
+              "google/gemini-3.1-flash-lite"
+            ],
+            "analysisDiffs": [],
+            "lineItemDiffs": []
+          },
+          {
+            "fileName": "exterior-back.jpg",
+            "totalsCents": [
+              575850,
+              575850
+            ],
+            "routes": [
+              "google/gemini-3.1-flash-lite",
+              "google/gemini-3.1-flash-lite"
+            ],
+            "analysisDiffs": [],
+            "lineItemDiffs": []
+          },
+          {
+            "fileName": "exterior-front.jpg",
+            "totalsCents": [
+              664880,
+              664880
+            ],
+            "routes": [
+              "google/gemini-3.1-flash-lite",
+              "google/gemini-3.1-flash-lite"
+            ],
+            "analysisDiffs": [],
+            "lineItemDiffs": []
+          },
+          {
+            "fileName": "exterior-left.jpg",
+            "totalsCents": [
+              1020670,
+              1020670
+            ],
+            "routes": [
+              "google/gemini-3.1-flash-lite",
+              "google/gemini-3.1-flash-lite"
+            ],
+            "analysisDiffs": [],
+            "lineItemDiffs": []
+          },
+          {
+            "fileName": "exterior-right.jpg",
+            "totalsCents": [
+              714620,
+              714620
+            ],
+            "routes": [
+              "google/gemini-3.1-flash-lite",
+              "google/gemini-3.1-flash-lite"
+            ],
+            "analysisDiffs": [],
+            "lineItemDiffs": []
+          },
+          {
+            "fileName": "kitchen.jpg",
+            "totalsCents": [
+              204500,
+              204500
+            ],
+            "routes": [
+              "google/gemini-3.1-flash-lite",
+              "google/gemini-3.1-flash-lite"
+            ],
+            "analysisDiffs": [],
+            "lineItemDiffs": []
+          },
+          {
+            "fileName": "living-room-rural.jpg",
+            "totalsCents": [
+              36800,
+              39800
+            ],
+            "routes": [
+              "google/gemini-3.1-flash-lite",
+              "google/gemini-3.1-flash-lite"
+            ],
+            "analysisDiffs": [
+              {
+                "path": "currentColors[0]",
+                "values": [
+                  "beige",
+                  "peach"
+                ]
+              },
+              {
+                "path": "currentColors[1]",
+                "values": [
+                  null,
+                  "tan"
+                ]
+              },
+              {
+                "path": "notes",
+                "values": [
+                  "The wall has a very rough, textured plaster finish that will require significant prep and likely more paint than a smooth wall. Numerous picture frames will need to be removed and holes patched.",
+                  "The wall surface is highly textured, likely stucco or rough plaster, which will require significant primer and paint. The surface is in poor condition with visible cracks and uneven texture."
+                ]
+              },
+              {
+                "path": "surfaces[walls].condition",
+                "values": [
+                  "fair",
+                  "poor"
+                ]
+              }
+            ],
+            "lineItemDiffs": [
+              {
+                "path": "walls labor (fair).quantity",
+                "values": [
+                  100,
+                  null
+                ]
+              },
+              {
+                "path": "walls labor (fair).unitCents",
+                "values": [
+                  173,
+                  null
+                ]
+              },
+              {
+                "path": "walls labor (poor).quantity",
+                "values": [
+                  null,
+                  100
+                ]
+              },
+              {
+                "path": "walls labor (poor).unitCents",
+                "values": [
+                  null,
+                  203
+                ]
+              }
+            ]
+          },
+          {
+            "fileName": "living-room.jpg",
+            "totalsCents": [
+              150250,
+              150250
+            ],
+            "routes": [
+              "google/gemini-3.1-flash-lite",
+              "google/gemini-3.1-flash-lite"
+            ],
+            "analysisDiffs": [],
+            "lineItemDiffs": []
+          },
+          {
+            "fileName": "water-damaged-ceiling.jpg",
+            "totalsCents": [
+              46360,
+              46360
+            ],
+            "routes": [
+              "google/gemini-3.1-flash-lite",
+              "google/gemini-3.1-flash-lite"
+            ],
+            "analysisDiffs": [],
+            "lineItemDiffs": []
+          }
+        ]
+      }
+    }
+  }
+}

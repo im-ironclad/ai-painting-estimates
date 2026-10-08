@@ -35,7 +35,8 @@ const { values: args } = parseArgs({
     runs: { type: "string", default: "3" },
     set: { type: "string", default: "all" },
     "tolerance-cents": { type: "string", default: "0" },
-    concurrency: { type: "string", default: "4" },
+    concurrency: { type: "string", default: "1" },
+    compare: { type: "string" },
   },
 });
 const runs = Number(args.runs);
@@ -45,7 +46,7 @@ const setNames: SetName[] = args.set === "all" ? ["interior", "exterior"] : [arg
 if (!Number.isInteger(runs) || runs < 2) throw new Error("--runs must be an integer of at least 2");
 if (!Number.isInteger(toleranceCents) || toleranceCents < 0) throw new Error("--tolerance-cents must be a non-negative integer");
 if (!setNames.every((s) => s in SETS)) throw new Error(`--set must be one of all, ${Object.keys(SETS).join(", ")}`);
-if (!process.env.OPENROUTER_API_KEY) throw new Error("OPENROUTER_API_KEY is not set in .env.local.");
+if (!args.compare && !process.env.OPENROUTER_API_KEY) throw new Error("OPENROUTER_API_KEY is not set in .env.local.");
 
 const startedAt = new Date().toISOString();
 let calls = 0;
@@ -81,6 +82,17 @@ async function pool(tasks: (() => Promise<void>)[], size: number) {
 
 const sha = (s: string) => createHash("sha256").update(s).digest("hex").slice(0, 16);
 
+/** Reads an estimate back through the same view the page renders. Photos are named by their upload file name. */
+async function collect(estimateId: string): Promise<EstimateRun> {
+  const view = await getEstimateView(estimateId);
+  if (!view) throw new Error(`No estimate ${estimateId}`);
+  const photos = view.photos.map((p) => {
+    if (!p.analysis || !p.price) throw new Error(`${p.originalName} in ${estimateId} ended ${p.status}: ${p.error}`);
+    return { fileName: p.originalName, model: p.model ?? "unknown", provider: providers.get(p.id) ?? null, analysis: p.analysis, price: p.price };
+  });
+  return { estimateId, totalCents: view.summary.totalCents, photos };
+}
+
 async function runSet(name: SetName) {
   const set = SETS[name];
   const created: { estimateId: string; photoIds: Map<string, string> }[] = [];
@@ -99,17 +111,7 @@ async function runSet(name: SetName) {
 
   await pool(created.flatMap((c) => [...c.photoIds.values()].map((id) => () => ingest(id))), concurrency);
 
-  const estimateRuns: EstimateRun[] = [];
-  for (const { estimateId, photoIds } of created) {
-    const view = (await getEstimateView(estimateId))!;
-    const byId = new Map(view.photos.map((p) => [p.id, p]));
-    const photos = [...photoIds].map(([fileName, id]) => {
-      const p = byId.get(id)!;
-      if (!p.analysis || !p.price) throw new Error(`${fileName} in ${estimateId} ended ${p.status}: ${p.error}`);
-      return { fileName, model: p.model ?? "unknown", provider: providers.get(id) ?? null, analysis: p.analysis, price: p.price };
-    });
-    estimateRuns.push({ estimateId, totalCents: view.summary.totalCents, photos });
-  }
+  const estimateRuns = await Promise.all(created.map((c) => collect(c.estimateId)));
 
   const preprocessed = Object.fromEntries(
     await Promise.all(set.photos.map(async ({ fileName }) => {
@@ -124,7 +126,7 @@ async function runSet(name: SetName) {
 const show = (v: unknown) => (v === undefined ? "absent" : JSON.stringify(v).slice(0, 48));
 const diffLine = (d: FieldDiff) => `      ${d.path}: ${d.values.map(show).join(" | ")}`;
 
-function print(name: SetName, c: Comparison) {
+function print(name: string, c: Comparison) {
   const verdict = c.withinTolerance ? "CONSISTENT" : "INCONSISTENT";
   console.log(`\n${name}: ${verdict}  totals ${c.totalsCents.map(formatCents).join(", ")}  spread ${formatCents(c.spreadCents)} (tolerance ${formatCents(c.toleranceCents)})`);
   for (const p of c.photos) {
@@ -137,11 +139,18 @@ function print(name: SetName, c: Comparison) {
   }
 }
 
-const results: Partial<Record<SetName, Awaited<ReturnType<typeof runSet>>>> = {};
-for (const name of setNames) {
-  console.log(`${name}: ${runs} estimates x ${SETS[name].photos.length} photos`);
-  results[name] = await runSet(name);
-  print(name, results[name].comparison);
+type SetResult = { estimates: EstimateRun[]; preprocessedImageSha256?: Record<string, string>; comparison: Comparison };
+const results: Record<string, SetResult> = {};
+if (args.compare) {
+  const runsFromDb = await Promise.all(args.compare.split(",").map((id) => collect(id.trim())));
+  results.compared = { estimates: runsFromDb, comparison: compareRuns(runsFromDb, toleranceCents) };
+  print("compared", results.compared.comparison);
+} else {
+  for (const name of setNames) {
+    console.log(`${name}: ${runs} estimates x ${SETS[name].photos.length} photos`);
+    results[name] = await runSet(name);
+    print(name, results[name].comparison);
+  }
 }
 
 const report = {
