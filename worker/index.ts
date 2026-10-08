@@ -2,7 +2,7 @@ import { UnrecoverableError, Worker } from "bullmq";
 import { warmEmbeddingModels } from "@/ingest/embeddings";
 import { ingestPhoto, isRetryable } from "@/ingest/ingest-photo";
 import { QUEUE_NAME, redisConnection, type AnalyzeJob } from "@/ingest/queue";
-import { analyzeRoomPhoto } from "@/ingest/vision";
+import { analyzePhoto } from "@/ingest/vision";
 
 const concurrency = Number(process.env.WORKER_CONCURRENCY ?? 4);
 
@@ -17,7 +17,7 @@ const worker = new Worker<AnalyzeJob>(
   async (job) => {
     const finalAttempt = job.attemptsMade + 1 >= (job.opts.attempts ?? 1);
     try {
-      return await ingestPhoto(job.data.photoId, analyzeRoomPhoto, { finalAttempt });
+      return await ingestPhoto(job.data.photoId, analyzePhoto, { finalAttempt });
     } catch (err) {
       if (!isRetryable(err)) throw new UnrecoverableError((err as Error).message);
       throw err;

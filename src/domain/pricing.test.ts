@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { priceRoom, summarizeEstimate, type PhotoForEstimate } from "./pricing";
-import type { RoomAnalysis } from "./room-analysis";
+import { priceExteriorSide, priceRoom } from "./pricing";
+import type { ExteriorAnalysis, InteriorAnalysis } from "./photo-analysis";
 
-const base: RoomAnalysis = {
+const base: InteriorAnalysis = {
+  kind: "interior",
   roomType: "bedroom",
   surfaces: [
     { kind: "walls", condition: "good", estimatedSqFt: 400 },
@@ -55,26 +56,54 @@ describe("priceRoom", () => {
   });
 });
 
-describe("summarizeEstimate", () => {
-  it("totals analyzed rooms and counts pending and failed rooms without pricing them", () => {
-    const photos: PhotoForEstimate[] = [
-      { id: "a", status: "analyzed", analysis: base },
-      { id: "b", status: "analyzed", analysis: base },
-      { id: "c", status: "queued", analysis: null },
-      { id: "d", status: "analyzing", analysis: null },
-      { id: "e", status: "failed", analysis: null },
-    ];
-    const summary = summarizeEstimate(photos);
-    expect(summary.rooms.map((r) => r.id)).toEqual(["a", "b"]);
-    expect(summary.totalCents).toBe(2 * 145480);
-    expect(summary.gallons).toBe(10);
-    expect(summary.pendingCount).toBe(2);
-    expect(summary.failedCount).toBe(1);
-    expect(summary.complete).toBe(false);
+const side: ExteriorAnalysis = {
+  kind: "exterior",
+  sideGuess: "front",
+  sidingMaterial: "wood",
+  stories: 2,
+  surfaces: [
+    { kind: "siding", condition: "fair", estimatedSqFt: 500 },
+    { kind: "trim", condition: "good", estimatedSqFt: 100 },
+    { kind: "doors", condition: "good", estimatedSqFt: 40 },
+  ],
+  currentColors: ["red"],
+  prep: { peeling: false, mildew: false, woodRot: false, failedCaulk: false },
+  confidence: 0.7,
+  notes: "",
+};
+
+const unit = (a: ExteriorAnalysis, label: string) =>
+  priceExteriorSide(a).lineItems.find((li) => li.label === label)!.unitCents;
+
+describe("priceExteriorSide", () => {
+  it("produces exact line items from the exterior rates table", () => {
+    const price = priceExteriorSide(side);
+    expect(price.lineItems.map((li) => [li.label, li.quantity, li.unitCents, li.totalCents])).toEqual([
+      ["siding paint (2 coats)", 4, 6000, 24000],
+      ["siding labor (fair)", 500, 345, 172500],
+      ["trim paint (2 coats)", 1, 6500, 6500],
+      ["trim labor (good)", 100, 438, 43800],
+      ["doors paint (2 coats)", 1, 6500, 6500],
+      ["doors labor (good)", 40, 300, 12000],
+    ]);
+    expect(price.gallons).toBe(6);
+    expect(price.totalCents).toBe(265300);
   });
 
-  it("is complete only when every photo is analyzed", () => {
-    expect(summarizeEstimate([{ id: "a", status: "analyzed", analysis: base }]).complete).toBe(true);
-    expect(summarizeEstimate([]).complete).toBe(false);
+  it("scales labor on wall-height surfaces by stories and leaves ground-level doors alone", () => {
+    expect([1, 2, 3].map((stories) => unit({ ...side, stories: stories as 1 | 2 | 3 }, "siding labor (fair)"))).toEqual([276, 345, 442]);
+    expect([1, 2, 3].map((stories) => unit({ ...side, stories: stories as 1 | 2 | 3 }, "doors labor (good)"))).toEqual([300, 300, 300]);
+  });
+
+  it("applies the siding material multiplier to siding only", () => {
+    const vinyl = { ...side, sidingMaterial: "vinyl" as const };
+    expect(unit(vinyl, "siding labor (fair)")).toBe(259);
+    expect(unit(vinyl, "trim labor (good)")).toBe(438);
+  });
+
+  it("compounds every set prep flag into all labor", () => {
+    const rough = { ...side, prep: { peeling: true, mildew: true, woodRot: false, failedCaulk: false } };
+    expect(unit(rough, "doors labor (good)")).toBe(429);
+    expect(priceExteriorSide(rough).lineItems.find((li) => li.label === "doors paint (2 coats)")!.totalCents).toBe(6500);
   });
 });

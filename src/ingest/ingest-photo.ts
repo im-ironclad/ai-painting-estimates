@@ -1,5 +1,7 @@
 import { sql } from "drizzle-orm";
+import { photos } from "@/db/schema";
 import { renderCaption } from "@/domain/caption";
+import type { PhotoAnalysis } from "@/domain/photo-analysis";
 import { embedCaption, embedImage } from "./embeddings";
 import { claimPhoto, transition } from "./photo-repo";
 import type { VisionResult } from "./vision";
@@ -7,6 +9,10 @@ import type { VisionResult } from "./vision";
 export type Analyzer = (imagePath: string) => Promise<VisionResult>;
 
 export type IngestOutcome = "analyzed" | "skipped";
+
+/** A side chosen at upload (a checklist slot) outlives the model's guess; an interior never has one. */
+const storedSide = (a: PhotoAnalysis) =>
+  a.kind === "exterior" ? sql`coalesce(${photos.exteriorSide}, ${a.sideGuess}::exterior_side)` : null;
 
 const isRetryable = (err: unknown) => !(err instanceof Error && "retryable" in err && err.retryable === false);
 
@@ -29,6 +35,7 @@ export async function ingestPhoto(
     const captionEmbedding = await embedCaption(captionText);
     await transition(photoId, "succeed", {
       analysis: vision.analysis,
+      exteriorSide: storedSide(vision.analysis),
       model: vision.model,
       captionText,
       captionEmbedding,

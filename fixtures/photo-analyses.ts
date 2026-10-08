@@ -1,12 +1,15 @@
-import type { RoomAnalysis } from "../src/domain/room-analysis";
+import type { PhotoAnalysis } from "../src/domain/photo-analysis";
 
 /**
  * FIXTURE DATA. Hand-written analyses for the photos in samples/, standing in
  * for the vision model until OPENROUTER_API_KEY exists. Written by a human
- * looking at each photo; the numbers are plausible, not measured.
+ * looking at each photo; the numbers are plausible, not measured. The
+ * exterior files are named for the side the photographer labeled, and each
+ * fixture's sideGuess matches that label.
  */
-export const FIXTURE_ANALYSES: Record<string, RoomAnalysis> = {
+export const FIXTURE_ANALYSES = {
   "bedroom.jpg": {
+    kind: "interior",
     roomType: "bedroom",
     surfaces: [
       { kind: "walls", condition: "good", estimatedSqFt: 400 },
@@ -21,6 +24,7 @@ export const FIXTURE_ANALYSES: Record<string, RoomAnalysis> = {
     notes: "Mirrored wardrobe doors and carpet need masking. Walls are clean.",
   },
   "kitchen.jpg": {
+    kind: "interior",
     roomType: "kitchen",
     surfaces: [
       { kind: "walls", condition: "good", estimatedSqFt: 320 },
@@ -36,6 +40,7 @@ export const FIXTURE_ANALYSES: Record<string, RoomAnalysis> = {
     notes: "Open plan kitchen into living area with crown molding and a dropped bulkhead. Grey island cabinets.",
   },
   "water-damaged-ceiling.jpg": {
+    kind: "interior",
     roomType: "other",
     surfaces: [{ kind: "ceiling", condition: "poor", estimatedSqFt: 150 }],
     estimatedFloorSqFt: 150,
@@ -46,6 +51,7 @@ export const FIXTURE_ANALYSES: Record<string, RoomAnalysis> = {
     notes: "Large area of peeling paint and exposed drywall paper from a leak. Fix the leak source before painting.",
   },
   "bathroom.jpg": {
+    kind: "interior",
     roomType: "bathroom",
     surfaces: [
       { kind: "walls", condition: "fair", estimatedSqFt: 180 },
@@ -59,6 +65,7 @@ export const FIXTURE_ANALYSES: Record<string, RoomAnalysis> = {
     notes: "Tiled shower walls and the mirror wall are excluded. Use a mildew-resistant bathroom paint.",
   },
   "living-room.jpg": {
+    kind: "interior",
     roomType: "living_room",
     surfaces: [
       { kind: "walls", condition: "good", estimatedSqFt: 520 },
@@ -73,6 +80,7 @@ export const FIXTURE_ANALYSES: Record<string, RoomAnalysis> = {
     notes: "White plank ceiling and large windows reduce wall area. Furniture needs moving and covering.",
   },
   "living-room-rural.jpg": {
+    kind: "interior",
     roomType: "living_room",
     surfaces: [
       { kind: "walls", condition: "poor", estimatedSqFt: 450 },
@@ -84,4 +92,65 @@ export const FIXTURE_ANALYSES: Record<string, RoomAnalysis> = {
     confidence: 0.3,
     notes: "Close-up of one rough plaster wall hung with framed pictures. Visible cracks and chipped plaster need patching.",
   },
-};
+  "exterior-front.jpg": {
+    kind: "exterior",
+    sideGuess: "front",
+    sidingMaterial: "wood",
+    stories: 2,
+    surfaces: [
+      { kind: "siding", condition: "fair", estimatedSqFt: 520 },
+      { kind: "trim", condition: "fair", estimatedSqFt: 90 },
+      { kind: "doors", condition: "fair", estimatedSqFt: 40 },
+      { kind: "deck_porch", condition: "fair", estimatedSqFt: 60 },
+    ],
+    currentColors: ["barn red", "white"],
+    prep: { peeling: false, mildew: false, woodRot: false, failedCaulk: false },
+    confidence: 0.6,
+    notes: "Painted wood shingles with white trim. The exterior stair and landing need scraping and paint.",
+  },
+  "exterior-left.jpg": {
+    kind: "exterior",
+    sideGuess: "left",
+    sidingMaterial: "wood",
+    stories: 2,
+    surfaces: [
+      { kind: "siding", condition: "fair", estimatedSqFt: 700 },
+      { kind: "trim", condition: "fair", estimatedSqFt: 110 },
+      { kind: "doors", condition: "fair", estimatedSqFt: 20 },
+      { kind: "fascia_soffit", condition: "fair", estimatedSqFt: 60 },
+    ],
+    currentColors: ["barn red", "white"],
+    prep: { peeling: false, mildew: false, woodRot: false, failedCaulk: false },
+    confidence: 0.55,
+    notes: "Gable end with a one-story bump-out and a small porch roof. Shingles look sound from the street.",
+  },
+  "exterior-right.jpg": {
+    kind: "exterior",
+    sideGuess: "right",
+    sidingMaterial: "wood",
+    stories: 2,
+    surfaces: [
+      { kind: "siding", condition: "fair", estimatedSqFt: 650 },
+      { kind: "trim", condition: "fair", estimatedSqFt: 80 },
+      { kind: "doors", condition: "fair", estimatedSqFt: 20 },
+    ],
+    currentColors: ["barn red", "white"],
+    prep: { peeling: false, mildew: false, woodRot: false, failedCaulk: false },
+    confidence: 0.5,
+    notes: "Gable end with vines on the shingles that must come off first. A parked car limits ladder access.",
+  },
+  "exterior-back.jpg": {
+    kind: "exterior",
+    sideGuess: "back",
+    sidingMaterial: "wood",
+    stories: 2,
+    surfaces: [
+      { kind: "siding", condition: "fair", estimatedSqFt: 600 },
+      { kind: "trim", condition: "good", estimatedSqFt: 70 },
+    ],
+    currentColors: ["weathered grey", "white"],
+    prep: { peeling: false, mildew: true, woodRot: false, failedCaulk: false },
+    confidence: 0.5,
+    notes: "Weathered cedar shingles under a gambrel roof with dormers. Wash before staining or painting.",
+  },
+} satisfies Record<string, PhotoAnalysis>;

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CONDITIONS, ROOM_TYPES } from "@/domain/room-analysis";
+import { CONDITIONS, EXTERIOR_SIDES, PHOTO_KINDS, ROOM_TYPES, type PhotoAnalysis } from "@/domain/photo-analysis";
 import type { SearchHit, SearchMode, SearchResults } from "@/search/search";
 
 type View = SearchMode | "compare";
@@ -26,7 +26,9 @@ const options = (values: readonly string[]) => [
 
 export function SearchClient() {
   const [query, setQuery] = useState("");
+  const [kind, setKind] = useState(ANY);
   const [roomType, setRoomType] = useState(ANY);
+  const [side, setSide] = useState(ANY);
   const [condition, setCondition] = useState(ANY);
   const [view, setView] = useState<View>("compare");
   const [results, setResults] = useState<(SearchResults & { tookMs: number }) | null>(null);
@@ -38,7 +40,9 @@ export function SearchClient() {
     setBusy(true);
     setError(null);
     const params = new URLSearchParams({ q: query });
+    if (kind !== ANY) params.set("kind", kind);
     if (roomType !== ANY) params.set("roomType", roomType);
+    if (side !== ANY) params.set("side", side);
     if (condition !== ANY) params.set("condition", condition);
     const res = await fetch(`/api/search?${params}`);
     setBusy(false);
@@ -52,7 +56,7 @@ export function SearchClient() {
     <div className="space-y-6">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">Search photos</h1>
-        <p className="text-muted-foreground">Semantic search over every analyzed room photo, three ways.</p>
+        <p className="text-muted-foreground">Semantic search over every analyzed photo, inside and out, three ways.</p>
       </div>
       <form onSubmit={search} className="flex flex-wrap items-center gap-2">
         <Input
@@ -62,7 +66,9 @@ export function SearchClient() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
+        <FilterSelect label="Kind" value={kind} onChange={setKind} items={options(PHOTO_KINDS)} />
         <FilterSelect label="Room" value={roomType} onChange={setRoomType} items={options(ROOM_TYPES)} />
+        <FilterSelect label="Side" value={side} onChange={setSide} items={options(EXTERIOR_SIDES)} />
         <FilterSelect label="Condition" value={condition} onChange={setCondition} items={options(CONDITIONS)} />
         <Button type="submit" disabled={busy || query.trim() === ""}>
           {busy ? "Searching..." : "Search"}
@@ -123,6 +129,10 @@ function FilterSelect(props: {
   );
 }
 
+function hitTitle(a: PhotoAnalysis, side: string | null): string {
+  return a.kind === "interior" ? a.roomType.replaceAll("_", " ") : `Exterior · ${side ?? a.sideGuess}`;
+}
+
 function HitCard({ hit, rank, mode }: { hit: SearchHit; rank: number; mode: SearchMode }) {
   return (
     <Card size="sm">
@@ -130,7 +140,7 @@ function HitCard({ hit, rank, mode }: { hit: SearchHit; rank: number; mode: Sear
       <img src={`/api/photos/${hit.photoId}/image`} alt={hit.originalName} className="aspect-video w-full object-cover" />
       <CardHeader>
         <CardTitle className="capitalize">
-          {rank}. {hit.analysis.roomType.replaceAll("_", " ")}
+          {rank}. {hitTitle(hit.analysis, hit.exteriorSide)}
         </CardTitle>
         <CardDescription>
           {mode === "hybrid" ? "score" : "distance"} {hit.score.toFixed(4)} · {hit.originalName}

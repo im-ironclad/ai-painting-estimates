@@ -4,13 +4,13 @@ import { db, sql } from "@/db/client";
 import { estimates } from "@/db/schema";
 import { ingestPhoto } from "@/ingest/ingest-photo";
 import { storePhoto } from "@/ingest/photos";
-import { FIXTURE_ANALYSES } from "../fixtures/room-analyses";
+import { FIXTURE_ANALYSES } from "../fixtures/photo-analyses";
 
 const FIXTURE_MODEL = "fixture:hand-written";
 
 const [estimate] = await db
   .insert(estimates)
-  .values({ name: "Fixture home (hand-written analyses, not model output)" })
+  .values({ name: "Fixture home (hand-written analyses, not model output)", exteriorScope: "whole_exterior" })
   .returning();
 
 for (const [fileName, analysis] of Object.entries(FIXTURE_ANALYSES)) {

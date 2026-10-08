@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderCaption } from "./caption";
-import { FIXTURE_ANALYSES } from "../../fixtures/room-analyses";
+import { FIXTURE_ANALYSES } from "../../fixtures/photo-analyses";
 
 const kitchen = FIXTURE_ANALYSES["kitchen.jpg"];
 
@@ -27,5 +27,19 @@ describe("renderCaption", () => {
     const caption = renderCaption(FIXTURE_ANALYSES["water-damaged-ceiling.jpg"]);
     expect(caption).toContain("Prep: patching needed, water damage.");
     expect(renderCaption(FIXTURE_ANALYSES["living-room.jpg"])).toContain("Room: living room.");
+  });
+
+  it("renders an exterior without the side, so a user correction cannot leave a stale caption", () => {
+    const front = FIXTURE_ANALYSES["exterior-front.jpg"];
+    expect(renderCaption(front)).toBe(
+      [
+        "Exterior: 2-story house with wood siding.",
+        "Surfaces: deck porch in fair condition (60 sq ft); doors in fair condition (40 sq ft); siding in fair condition (520 sq ft); trim in fair condition (90 sq ft).",
+        "Current colors: barn red, white.",
+        "Prep: none.",
+        "Notes: Painted wood shingles with white trim. The exterior stair and landing need scraping and paint.",
+      ].join("\n"),
+    );
+    expect(renderCaption(FIXTURE_ANALYSES["exterior-back.jpg"])).toContain("Prep: mildew.");
   });
 });

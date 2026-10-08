@@ -1,9 +1,11 @@
-import { asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { estimates, photos } from "@/db/schema";
+import { summarizeEstimate, type EstimateSummary, type PhotoForEstimate } from "@/domain/estimate";
+import type { ExteriorScope } from "@/domain/exterior";
+import type { ExteriorSide, PhotoAnalysis } from "@/domain/photo-analysis";
 import type { PhotoStatus } from "@/domain/photo-status";
-import { priceRoom, summarizeEstimate, type EstimateSummary, type PhotoForEstimate, type RoomPrice } from "@/domain/pricing";
-import type { RoomAnalysis } from "@/domain/room-analysis";
+import { pricePhoto, type Price } from "@/domain/pricing";
 
 export type PhotoView = {
   id: string;
@@ -12,9 +14,12 @@ export type PhotoView = {
   attempts: number;
   error: string | null;
   model: string | null;
-  analysis: RoomAnalysis | null;
+  analysis: PhotoAnalysis | null;
+  exteriorSide: ExteriorSide | null;
+  /** Set when another photo of the same side is the one priced. */
+  duplicateOf: string | null;
   captionText: string | null;
-  price: RoomPrice | null;
+  price: Price | null;
   createdAt: string;
   analyzedAt: string | null;
 };
@@ -46,10 +51,30 @@ export async function listEstimates() {
     .orderBy(desc(estimates.createdAt));
 }
 
-function forEstimate(p: { id: string; status: PhotoStatus; analysis: RoomAnalysis | null }): PhotoForEstimate {
-  return p.status === "analyzed" && p.analysis
-    ? { id: p.id, status: "analyzed", analysis: p.analysis }
-    : { id: p.id, status: p.status === "analyzed" ? "failed" : p.status, analysis: null };
+export async function setExteriorScope(id: string, exteriorScope: ExteriorScope): Promise<boolean> {
+  const rows = await db.update(estimates).set({ exteriorScope }).where(eq(estimates.id, id)).returning({ id: estimates.id });
+  return rows.length > 0;
+}
+
+/** Only an analyzed exterior has a side to correct. Returns false otherwise. */
+export async function setPhotoSide(id: string, exteriorSide: ExteriorSide): Promise<boolean> {
+  const rows = await db
+    .update(photos)
+    .set({ exteriorSide, updatedAt: sql`now()` })
+    .where(and(eq(photos.id, id), eq(photos.status, "analyzed"), sql`${photos.analysis}->>'kind' = 'exterior'`))
+    .returning({ id: photos.id });
+  return rows.length > 0;
+}
+
+type Row = { id: string; status: PhotoStatus; analysis: PhotoAnalysis | null; exteriorSide: ExteriorSide | null };
+
+function forEstimate(p: Row): PhotoForEstimate {
+  if (p.status !== "analyzed" || !p.analysis) {
+    return { id: p.id, status: p.status === "analyzed" ? "failed" : p.status, analysis: null };
+  }
+  if (p.analysis.kind === "interior") return { id: p.id, status: "analyzed", analysis: p.analysis };
+  if (!p.exteriorSide) throw new Error(`analyzed exterior ${p.id} has no side; the photos check constraint should prevent this`);
+  return { id: p.id, status: "analyzed", analysis: p.analysis, side: p.exteriorSide };
 }
 
 export async function getEstimateView(id: string): Promise<EstimateView | null> {
@@ -65,6 +90,7 @@ export async function getEstimateView(id: string): Promise<EstimateView | null> 
       error: photos.error,
       model: photos.model,
       analysis: photos.analysis,
+      exteriorSide: photos.exteriorSide,
       captionText: photos.captionText,
       createdAt: photos.createdAt,
       analyzedAt: photos.analyzedAt,
@@ -73,15 +99,17 @@ export async function getEstimateView(id: string): Promise<EstimateView | null> 
     .where(eq(photos.estimateId, id))
     .orderBy(asc(photos.createdAt));
 
-  const { rooms, ...rest } = summarizeEstimate(rows.map(forEstimate));
+  const { rooms, ...rest } = summarizeEstimate(rows.map(forEstimate), estimate.exteriorScope);
   const summary = { ...rest, roomCount: rooms.length };
+  const duplicateOf = new Map(rest.exterior.duplicates.map((d) => [d.photoId, d.pricedPhotoId]));
   return {
     id: estimate.id,
     name: estimate.name,
     summary,
     photos: rows.map((r) => ({
       ...r,
-      price: r.status === "analyzed" && r.analysis ? priceRoom(r.analysis) : null,
+      duplicateOf: duplicateOf.get(r.id) ?? null,
+      price: r.status === "analyzed" && r.analysis ? pricePhoto(r.analysis) : null,
       createdAt: r.createdAt.toISOString(),
       analyzedAt: r.analyzedAt?.toISOString() ?? null,
     })),

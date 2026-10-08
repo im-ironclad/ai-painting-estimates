@@ -1,20 +1,21 @@
 import { sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import type { Condition, RoomAnalysis, RoomType } from "@/domain/room-analysis";
+import type { Condition, ExteriorSide, PhotoAnalysis, PhotoKind, RoomType } from "@/domain/photo-analysis";
 import { embedCaption, embedClipText } from "@/ingest/embeddings";
 import { reciprocalRankFusion } from "./rrf";
 
 export const SEARCH_MODES = ["caption", "clip", "hybrid"] as const;
 export type SearchMode = (typeof SEARCH_MODES)[number];
 
-export type SearchFilters = { roomType?: RoomType; condition?: Condition };
+export type SearchFilters = { kind?: PhotoKind; roomType?: RoomType; side?: ExteriorSide; condition?: Condition };
 
 export type SearchHit = {
   photoId: string;
   estimateId: string;
   estimateName: string;
   originalName: string;
-  analysis: RoomAnalysis;
+  analysis: PhotoAnalysis;
+  exteriorSide: ExteriorSide | null;
   captionText: string;
   /** Cosine distance for caption/clip modes (0 is identical), RRF score for hybrid. */
   score: number;
@@ -29,15 +30,18 @@ type Row = {
   estimate_id: string;
   estimate_name: string;
   original_name: string;
-  analysis: RoomAnalysis;
+  analysis: PhotoAnalysis;
+  exterior_side: ExteriorSide | null;
   caption_text: string;
   distance: number;
 };
 
-function filterSql({ roomType, condition }: SearchFilters) {
+function filterSql({ kind, roomType, side, condition }: SearchFilters) {
   return sql.join(
     [
       sql`p.status = 'analyzed'`,
+      kind ? sql`p.analysis->>'kind' = ${kind}` : sql`true`,
+      side ? sql`p.exterior_side = ${side}` : sql`true`,
       roomType ? sql`p.analysis->>'roomType' = ${roomType}` : sql`true`,
       condition ? sql`p.analysis->'surfaces' @> ${JSON.stringify([{ condition }])}::jsonb` : sql`true`,
     ],
@@ -53,7 +57,7 @@ async function nearest(column: "caption_embedding" | "clip_embedding", embedding
     await tx.execute(sql`set local hnsw.iterative_scan = relaxed_order`);
     const rows = await tx.execute<Row>(sql`
       select p.id as photo_id, p.estimate_id, e.name as estimate_name, p.original_name,
-             p.analysis, p.caption_text, p.${sql.raw(column)} <=> ${vector}::vector as distance
+             p.analysis, p.exterior_side, p.caption_text, p.${sql.raw(column)} <=> ${vector}::vector as distance
       from photos p join estimates e on e.id = p.estimate_id
       where ${filterSql(filters)}
       order by p.${sql.raw(column)} <=> ${vector}::vector
@@ -69,6 +73,7 @@ function toHit(row: Row, score: number): SearchHit {
     estimateName: row.estimate_name,
     originalName: row.original_name,
     analysis: row.analysis,
+    exteriorSide: row.exterior_side,
     captionText: row.caption_text,
     score,
   };

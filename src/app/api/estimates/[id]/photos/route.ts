@@ -1,4 +1,5 @@
 import { db } from "@/db/client";
+import { ExteriorSide } from "@/domain/photo-analysis";
 import { createPhoto, UploadError } from "@/ingest/photos";
 import { badRequest, notFound, Uuid } from "@/server/http";
 
@@ -8,14 +9,19 @@ export async function POST(request: Request, ctx: RouteContext<"/api/estimates/[
   const estimate = await db.query.estimates.findFirst({ where: (e, { eq }) => eq(e.id, id.data) });
   if (!estimate) return notFound("estimate");
 
-  const files = (await request.formData()).getAll("files").filter((f): f is File => f instanceof File);
+  const form = await request.formData();
+  const files = form.getAll("files").filter((f): f is File => f instanceof File);
   if (files.length === 0) return badRequest("attach at least one image as `files`");
+  const side = ExteriorSide.optional().safeParse(form.get("exteriorSide") ?? undefined);
+  if (!side.success) return badRequest("`exteriorSide` must be front, back, left, or right");
 
   try {
     const ids = [];
     for (const file of files) {
       ids.push(
-        await createPhoto(id.data, { name: file.name, type: file.type, bytes: Buffer.from(await file.arrayBuffer()) }),
+        await createPhoto(id.data, { name: file.name, type: file.type, bytes: Buffer.from(await file.arrayBuffer()) }, {
+          exteriorSide: side.data,
+        }),
       );
     }
     return Response.json({ ids }, { status: 202 });

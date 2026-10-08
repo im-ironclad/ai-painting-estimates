@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { db } from "@/db/client";
 import { photos } from "@/db/schema";
+import type { ExteriorSide } from "@/domain/photo-analysis";
 import { transition } from "./photo-repo";
 import { enqueuePhoto, requeuePhoto } from "./queue";
 
@@ -17,15 +18,18 @@ export function uploadDir(): string {
 
 export type IncomingFile = { name: string; type: string; bytes: Buffer };
 
+/** `exteriorSide` comes from the checklist slot the user uploaded into. */
+export type UploadOptions = { exteriorSide?: ExteriorSide };
+
 /** Persist bytes, then the row, then the job. A crash between steps leaves a queued row a sweeper can re-enqueue. */
-export async function createPhoto(estimateId: string, file: IncomingFile): Promise<string> {
-  const id = await storePhoto(estimateId, file);
+export async function createPhoto(estimateId: string, file: IncomingFile, options: UploadOptions = {}): Promise<string> {
+  const id = await storePhoto(estimateId, file, options);
   await enqueuePhoto(id);
   return id;
 }
 
 /** Writes the file and inserts a queued row without enqueueing. The fixture seed uses this directly. */
-export async function storePhoto(estimateId: string, file: IncomingFile): Promise<string> {
+export async function storePhoto(estimateId: string, file: IncomingFile, { exteriorSide }: UploadOptions = {}): Promise<string> {
   const ext = ACCEPTED_TYPES[file.type];
   if (!ext) throw new UploadError(`Unsupported file type ${file.type || "unknown"}. Use JPEG, PNG, or WebP.`);
   if (file.bytes.byteLength > MAX_BYTES) throw new UploadError("File is larger than 15 MB.");
@@ -34,7 +38,7 @@ export async function storePhoto(estimateId: string, file: IncomingFile): Promis
   const filePath = path.join(/*turbopackIgnore: true*/ uploadDir(), `${id}${ext}`);
   await mkdir(uploadDir(), { recursive: true });
   await writeFile(filePath, file.bytes);
-  await db.insert(photos).values({ id, estimateId, filePath, originalName: file.name });
+  await db.insert(photos).values({ id, estimateId, filePath, originalName: file.name, exteriorSide });
   return id;
 }
 

@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import sharp from "sharp";
-import { parseRoomAnalysis, roomAnalysisJsonSchema, type RoomAnalysis } from "@/domain/room-analysis";
+import { parsePhotoAnalysis, photoAnalysisJsonSchema, type PhotoAnalysis } from "@/domain/photo-analysis";
 
 /** `retryable` decides whether the queue should try again or fail the photo now. */
 export class VisionError extends Error {
@@ -13,15 +13,18 @@ export class VisionError extends Error {
   }
 }
 
-export type VisionResult = { analysis: RoomAnalysis; model: string };
+export type VisionResult = { analysis: PhotoAnalysis; model: string };
 
 const SYSTEM_PROMPT = `You are an estimator for a house painting company.
-Look at one photo of one room and extract facts a painter needs to quote the job.
-Estimate paintable square footage per surface kind. Exclude tile, glass, mirrors, and stone.
-Only list surface kinds you can see. Do not price anything.
-If the photo is not a room interior, use roomType "other", an empty surfaces list, and confidence below 0.2.`;
+Look at one photo and extract facts a painter needs to quote the job. Do not price anything.
+First decide the kind. "interior" is one room inside a home. "exterior" is the outside of a house, seen from one side.
+Estimate paintable square footage per surface kind for what is visible. Only list surface kinds you can see.
+Interior: exclude tile, glass, mirrors, and stone.
+Exterior: exclude windows, roofing, masonry foundations, and unpainted brick or stone. Count only the one side facing the camera.
+For an exterior, sideGuess is only a guess; the user confirms it. The front faces the street and has the main entry or garage.
+If the photo is neither, use kind "interior", roomType "other", an empty surfaces list, and confidence below 0.2.`;
 
-const { $schema: _ignored, ...schema } = roomAnalysisJsonSchema;
+const { $schema: _ignored, ...schema } = photoAnalysisJsonSchema;
 
 function config() {
   return {
@@ -45,7 +48,7 @@ async function toDataUrl(imagePath: string): Promise<string> {
   return `data:image/jpeg;base64,${jpeg.toString("base64")}`;
 }
 
-export async function analyzeRoomPhoto(imagePath: string): Promise<VisionResult> {
+export async function analyzePhoto(imagePath: string): Promise<VisionResult> {
   const { apiKey, baseUrl, model, fallbacks } = config();
   if (!apiKey) {
     throw new VisionError("OPENROUTER_API_KEY is not set. Add it to .env.local and restart the worker.", false);
@@ -59,14 +62,14 @@ export async function analyzeRoomPhoto(imagePath: string): Promise<VisionResult>
     provider: { require_parameters: true },
     response_format: {
       type: "json_schema",
-      json_schema: { name: "room_analysis", strict: true, schema },
+      json_schema: { name: "photo_analysis", strict: true, schema },
     },
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
       {
         role: "user",
         content: [
-          { type: "text", text: "Analyze this room for a paint estimate." },
+          { type: "text", text: "Analyze this photo for a paint estimate." },
           { type: "image_url", image_url: { url: await toDataUrl(imagePath) } },
         ],
       },
@@ -102,7 +105,7 @@ export async function analyzeRoomPhoto(imagePath: string): Promise<VisionResult>
   const content = payload.choices?.[0]?.message?.content;
   if (!content) throw new VisionError("OpenRouter response had no message content", true);
 
-  const parsed = parseRoomAnalysis(content);
+  const parsed = parsePhotoAnalysis(content);
   if (!parsed.ok) throw new VisionError(parsed.error, true);
   return { analysis: parsed.analysis, model: payload.model ?? model };
 }
