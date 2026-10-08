@@ -66,7 +66,7 @@ Results from `pnpm run search:cli` on the fixture seed show both effects.
 
 The flowers query is the clearest case. The flowers sit on the kitchen counter. No caption mentions them, so the caption mode returns noise, and CLIP finds the kitchen first.
 
-A caption is also only as good as its schema. To make captions find flowers, you would add a free-text "notable objects" field to `RoomAnalysis`. That is a product decision about what the search is for.
+A caption is also only as good as its schema. To make captions find flowers, you would add a free-text "notable objects" field to `PhotoAnalysis`. That is a product decision about what the search is for.
 
 ## Hybrid search and reciprocal rank fusion
 
@@ -82,21 +82,25 @@ RRF rewards agreement. A photo ranked third in both lists beats one ranked first
 
 ## Structured outputs and Zod
 
-Structured outputs constrain the model's decoder to emit JSON that matches a schema. `src/ingest/vision.ts` sends `response_format: { type: "json_schema", json_schema: { strict: true, schema } }`. The schema is `z.toJSONSchema(RoomAnalysis)`.
+Structured outputs constrain the model's decoder to emit JSON that matches a schema. `src/ingest/vision.ts` sends `response_format: { type: "json_schema", json_schema: { strict: true, schema } }`. The schema is derived from `PhotoAnalysis`, a discriminated union of an interior branch and an exterior branch. Strict structured outputs need an object at the root, so the union sits under one key, `{ "analysis": ... }`. One call both classifies the photo and extracts the fields for its kind.
 
-Zod still validates the reply with `parseRoomAnalysis`. There are three reasons.
+Zod still validates the reply with `parsePhotoAnalysis`. There are three reasons.
 
 1. Not every provider enforces every JSON Schema keyword. Some ignore `minimum` and `maximum`.
 2. A fallback model might support JSON mode without strict schemas.
-3. The reply crosses a trust boundary. Code past `parseRoomAnalysis` trusts the type, so the check belongs at the boundary.
+3. The reply crosses a trust boundary. Code past `parsePhotoAnalysis` trusts the type, so the check belongs at the boundary.
 
 `provider: { require_parameters: true }` tells OpenRouter to route only to providers that support every parameter in the request, including `response_format`. Without it, OpenRouter may route to a provider that ignores the schema.
 
 One schema yields four things: the JSON Schema for the model, the TypeScript type, the database column type, and the validator. Adding a field means changing one file.
 
+**What a provider honors is narrower than JSON Schema.** The first live run with the union classified every exterior as an interior room of type `other`. Probes found the cause. `stories` was sent as `{ "type": "number", "enum": [1, 2, 3] }`, and Gemini supports only string enums. With the interior branch first, the model always filled the interior branch. With the exterior branch first, it returned `{ "analysis": {} }`. The fix is in the schema override in `src/domain/photo-analysis.ts`. A numeric enum goes over the wire as `{ "type": "integer", "minimum": 1, "maximum": 3 }`, and Zod still checks the exact values on the way back. After the fix, all ten samples came back as the right kind. A test pins the wire shape, because nothing else would catch a regression without a live call. The same override turns `oneOf` into `anyOf` and `const` into a one-value `enum`, for the same reason.
+
 ## The model extracts and code prices
 
-The model never produces a price. It reports observations: surface kinds, square footage, condition, and prep flags. `priceRoom` in `src/domain/pricing.ts` turns them into gallons and dollars.
+The model never produces a price. It reports observations: surface kinds, square footage, condition, and prep flags. `priceRoom` and `priceExteriorSide` in `src/domain/pricing.ts` turn them into gallons and dollars.
+
+Exterior labor has three extra multipliers. Siding material applies to siding only, because brick and stucco are slower to paint than vinyl. Stories apply to surfaces that rise with the wall (siding, trim, shutters, fascia and soffit), because the second story needs ladders and the third needs lifts or staging. Doors, garage doors, and decks are worked from the ground and get no story multiplier. Each prep flag the model sets (peeling, mildew, wood rot, failed caulk) multiplies all labor on that side.
 
 - Prices are deterministic and auditable. Each line item shows quantity, unit price, and total.
 - Rates change without touching the prompt. `DEFAULT_RATES` is one object.
@@ -154,14 +158,37 @@ The levers, in order of effect:
 3. Parallel work. The CLIP embedding runs while the model call is in flight, so it adds no latency.
 4. Prompt caching. The system prompt and schema are identical on every call. Providers that cache prompt prefixes would bill them at a discount.
 
+## Scope as explicit state
+
+The question "just this side, or the whole exterior?" has an answer that must survive a reload, a second upload, and a second browser tab. So it is a column, `estimates.exterior_scope`, with three values: `undecided`, `single_side`, and `whole_exterior`. It is not inferred from how many exterior photos exist.
+
+Inferring it fails in both directions. One photo could mean "I only want the front painted" or "I have not uploaded the rest yet". Four photos could be four sides, or four photos of the front. The count cannot tell these apart, and only the user can.
+
+With the scope stored, the page is a function of two inputs. `summarizeExterior(scope, photos)` returns the status, the covered and missing sides, the duplicates, and the subtotal. Two tables carry the policy. `REQUIRED_SIDES` says which sides each scope demands, and only `whole_exterior` demands any. `COUNTS_IN_TOTAL` says which statuses add to the total, and only `single_side_priced` and `complete` do. The UI branches on the status, never on photo counts. Adding a scope such as "front and back only" means adding one row to each table.
+
+The default is `undecided`, and an undecided exterior stays out of the total. That costs one click, but the user never sees a total that silently assumes an answer. The side price stays visible on the prompt ("We priced the front at $6,648.80"), so the user can decide with the number in front of them.
+
+## The model only guesses the side
+
+The vision model returns `sideGuess`, but nothing prices from it. The stored side lives in `photos.exterior_side`. An upload from a side slot sets it before analysis. Otherwise the worker copies the guess into it once. The user can change it from the dropdown on the card.
+
+The side is a fact about the photographer, not about the pixels. A model can usually spot the front, because the front has the main entry and faces the street. It cannot tell left from right without knowing where the camera stood, and a back with a door looks like a front. The live run shows this. The model called all four exterior samples "front", with confidence 0.9 on each. If pricing trusted the guess, a whole-exterior estimate would price one side and drop three as duplicates. The verify:live summary shows exactly that.
+
+Three choices follow.
+
+- The slot's side beats the guess. Someone who uses the "Upload left" slot has told us the side.
+- The caption leaves the side out. The side can change after the caption is embedded, and a stale side in the embedding would mislead search. The side filter reads the column instead.
+- Duplicates are priced once and shown, not hidden. A user who sees "Duplicate front, not priced" on their left-side photo knows to fix the dropdown.
+
 ## Evaluating extraction quality
 
-The fixtures in `fixtures/room-analyses.ts` double as hand-written labels. `pnpm verify:live` runs every sample through the live model and compares two fields against them.
+The fixtures in `fixtures/photo-analyses.ts` double as hand-written labels. `pnpm verify:live` runs every sample through the live model and compares the kind, the room type or side guess, and the prep flags against them. A wrong kind fails the run, because the kind picks the pricing path. The other fields are reported.
 
-The run on 2026-10-08 measured:
+The last run on 2026-10-08 measured:
 
-- Room type matched the labels on 5 of 6 photos. The miss was `living-room-rural.jpg`, a close-up of a plaster wall that the model called `other` with confidence 0.1. The system prompt tells the model to use `other` for a photo that is not a room interior, so the model followed the prompt.
-- Prep flags matched on 5 of 6. The miss was `highCeilings` on the same close-up.
+- Kind matched on 10 of 10.
+- Room type or side guess matched on 5 of 10. Two interiors missed. `kitchen.jpg` came back as `living_room`, and `living-room-rural.jpg`, a close-up of a plaster wall, came back as `other`. The system prompt tells the model to use `other` for a photo that is not a room, so the second miss follows the prompt. Three exteriors missed because every side guess was "front".
+- Prep flags matched on 5 of 10. The interior miss was `highCeilings` on the close-up. All four exteriors differed. The model flagged peeling, wood rot, and failed caulk where the hand labels say none. Looking at the photos, the model is arguably right about the weathered red house. The labels may be wrong, which is the usual first finding of an eval.
 - Two runs at temperature 0 priced the bedroom at $917.50 and $1,045.00, because the square-footage estimate moved. Temperature 0 does not make a hosted model deterministic.
 
 To take this further:
@@ -214,6 +241,18 @@ Today, a six-photo smoke eval against hand-written labels. For production, a lab
 
 **What does a photo cost to analyze?**
 About $0.0008 with `gemini-3.1-flash-lite`, measured. Image size drives most of it.
+
+**Why one vision call with a union instead of a classifier call, then an extraction call?**
+One call costs half as much and takes half as long. Classification and extraction look at the same pixels, so a second call adds no information. The cost is a schema that some providers handle badly, which the Gemini numeric-enum bug showed. The test on the wire schema covers that.
+
+**Why not infer "whole exterior" once four exterior photos arrive?**
+Four photos might show one side four times, and one photo might be all the user wants. The count cannot answer the question, so the scope is a stored choice. See "Scope as explicit state".
+
+**Why keep the exterior out of the total until all four sides are in?**
+A partial whole-exterior total looks like a final number and is not. Showing $0 for the exterior with "3 of 4 sides missing" is honest. The per-side prices stay visible on the cards.
+
+**How did you migrate existing rows to the union?**
+In the same migration that added the columns. It prepends `"kind": "interior"` to every stored analysis that lacks a kind, then adds a check constraint that an analyzed exterior has a side. The constraint would have rejected the old rows if the update had not run first.
 
 **What happens with a bad photo, such as a blurry close-up or not a room?**
 The prompt asks the model to return `other` with low confidence. The close-up sample came back as `other` with confidence 0.1. The UI should flag low-confidence rooms for review instead of silently pricing them. This POC prices them and shows the confidence.

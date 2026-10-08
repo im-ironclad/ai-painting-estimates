@@ -1,6 +1,8 @@
 # Paint Estimator estimates
 
-Upload one photo per room of a home. A vision model extracts the paintable surfaces, their condition, and the prep work. Code prices each room from that extraction, and the rooms add up to a whole-home estimate. A search page runs semantic search over every analyzed photo three ways: caption embeddings, CLIP image embeddings, and a hybrid of both.
+Upload one photo per room of a home, or one per side of the house. A vision model says whether each photo is an interior or an exterior and extracts the paintable surfaces, their condition, and the prep work. Code prices each room and each side from that extraction, and they add up to a whole-home estimate.
+
+An exterior photo starts a decision. After the first side is priced, the page asks "Paint just this side, or the whole exterior?" Just this side counts that side in the total. Whole exterior shows a checklist with an upload slot for each missing side, and keeps the exterior out of the total until all four sides are analyzed. A search page runs semantic search over every analyzed photo three ways: caption embeddings, CLIP image embeddings, and a hybrid of both.
 
 This is a proof of concept. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) follows a photo through the system. [docs/CONCEPTS.md](docs/CONCEPTS.md) explains the ideas behind it and answers likely interview questions.
 
@@ -11,7 +13,7 @@ This is a proof of concept. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) follows
 - Redis and BullMQ for the analysis queue. The worker is a separate Node process.
 - OpenRouter for the vision call, with structured outputs. Zod validates the response.
 - transformers.js for local embeddings: `all-MiniLM-L6-v2` for captions and `clip-vit-base-patch32` for images.
-- Vitest for the pricing, schema, caption, and rank-fusion tests.
+- Vitest for the pricing, schema, caption, estimate summary, and rank-fusion tests.
 
 ## Run it
 
@@ -72,13 +74,13 @@ The web app runs on port 3100. Set `PORT` to use another port.
 pnpm verify:live
 ```
 
-The script stores each sample photo under a new "Live OpenRouter check" home and runs the same `ingestPhoto` function the worker runs. For each photo it prints the latency, the model that answered, the room type, prep-flag agreement, confidence, and the room price. It exits with code 1 if any photo fails.
+The script stores each sample photo under a new "Live OpenRouter check" home with the whole-exterior scope and runs the same `ingestPhoto` function the worker runs. It retries a retryable error up to three times, as the worker does. For each photo it prints the latency, the attempt count, the model that answered, the kind, the room type or side guess, prep-flag agreement, confidence, and the price. It then prints the exterior summary. It exits with code 1 if any photo fails after its retries or comes back as the wrong kind.
 
-A run on 2026-10-08 analyzed all six samples with `google/gemini-3.1-flash-lite`. Each photo took 1.8 to 12.8 seconds end to end. Room type matched the fixture labels on 5 of 6 photos, and prep flags matched on 5 of 6.
+The last run on 2026-10-08 analyzed all ten samples with `google/gemini-3.1-flash-lite`, each on its first attempt, in 1.9 to 12.1 seconds per photo. All ten came back as the right kind. Room type or side guess matched the fixture labels on 5 of 10, and prep flags matched on 5 of 10. The model guessed "front" for all four exterior sides, so the summary reports one covered side and three duplicates. [docs/CONCEPTS.md](docs/CONCEPTS.md) explains why the side is only a guess.
 
 ## Test without an API key
 
-`pnpm seed:fixtures` stores the six sample photos and analyzes them with hand-written `RoomAnalysis` objects from `fixtures/room-analyses.ts`. Everything after the vision call is the production code path: captions, both embeddings, pricing, and search. The seeded home is named "Fixture home (hand-written analyses, not model output)" so nobody mistakes it for model output.
+`pnpm seed:fixtures` stores the ten sample photos and analyzes them with hand-written `PhotoAnalysis` objects from `fixtures/photo-analyses.ts`. Everything after the vision call is the production code path: captions, both embeddings, pricing, and search. The seeded home is named "Fixture home (hand-written analyses, not model output)" so nobody mistakes it for model output.
 
 With no key, the worker fails each photo on its first attempt with "OPENROUTER_API_KEY is not set. Add it to .env.local and restart the worker." The estimate page shows the error and a **Retry** button.
 
@@ -97,4 +99,4 @@ With no key, the worker fails each photo on its first attempt with "OPENROUTER_A
 
 ## Sample photos
 
-`samples/` holds six room photos from Wikimedia Commons. [samples/ATTRIBUTION.md](samples/ATTRIBUTION.md) lists each source and license.
+`samples/` holds six room photos and four exterior photos from Wikimedia Commons. [samples/ATTRIBUTION.md](samples/ATTRIBUTION.md) lists each source and license. The front, left, and right photos show one house. No freely licensed rear photo of that house exists, so `exterior-back.jpg` shows a different house. The prices are still correct per side, but the four sides do not describe one real home.
