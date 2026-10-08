@@ -97,7 +97,7 @@ export async function getEstimateView(id: string): Promise<EstimateView | null> 
     })
     .from(photos)
     .where(eq(photos.estimateId, id))
-    .orderBy(asc(photos.createdAt));
+    .orderBy(asc(photos.createdAt), asc(photos.id));
 
   const { rooms, ...rest } = summarizeEstimate(rows.map(forEstimate), estimate.exteriorScope);
   const summary = { ...rest, roomCount: rooms.length };

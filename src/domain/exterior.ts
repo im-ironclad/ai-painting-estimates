@@ -45,13 +45,16 @@ export type ExteriorSummary = {
   countsInTotal: boolean;
 };
 
-/** Highest confidence wins; the smaller id breaks ties so the pick never depends on row order. */
-function better(a: ExteriorPhoto, b: ExteriorPhoto): ExteriorPhoto {
-  if (a.analysis.confidence !== b.analysis.confidence) return a.analysis.confidence > b.analysis.confidence ? a : b;
-  return a.id < b.id ? a : b;
+/**
+ * Highest confidence wins, and on a tie the earlier upload (`a`) wins. Ids are
+ * random UUIDs, so an id tie-break would let two estimates built from the same
+ * uploads price different photos.
+ */
+function better(earlier: ExteriorPhoto, later: ExteriorPhoto): ExteriorPhoto {
+  return later.analysis.confidence > earlier.analysis.confidence ? later : earlier;
 }
 
-/** Pure. Everything the estimate page shows about the exterior derives from the scope and the analyzed photos. */
+/** Pure. Everything the estimate page shows about the exterior derives from the scope and the analyzed photos, given in upload order. */
 export function summarizeExterior(
   scope: ExteriorScope,
   photos: readonly ExteriorPhoto[],

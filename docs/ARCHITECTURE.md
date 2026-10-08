@@ -107,7 +107,7 @@ Prices are computed on read and never stored. A rate change reprices every estim
 | `whole_exterior` | front, back, left, right | `incomplete` while any is missing | no |
 | `whole_exterior` | front, back, left, right | `complete` | yes |
 
-Two photos of the same side are priced once. The photo with higher confidence wins, and the smaller id breaks a tie so the pick never depends on row order. The other photo is listed as a duplicate and the page marks it.
+Two photos of the same side are priced once. The photo with higher confidence wins, and the earlier upload breaks a tie. A tie-break on the random photo id would let two estimates built from the same uploads price different photos. The other photo is listed as a duplicate and the page marks it.
 
 Two routes change the inputs.
 

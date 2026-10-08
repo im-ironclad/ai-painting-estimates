@@ -73,9 +73,14 @@ describe("summarizeExterior", () => {
     }
   });
 
-  it("breaks a confidence tie by id so the pick is stable", () => {
-    const s = summarizeExterior("single_side", [ext("b", "front", 0.5), ext("a", "front", 0.5)]);
-    expect(s.sides[0].photoId).toBe("a");
+  it("breaks a confidence tie by upload order, so estimates built from the same uploads price the same photo", () => {
+    const asFront = (id: string, side: ExteriorSide): ExteriorPhoto => ({ ...ext(id, side, 0.9), side: "front" });
+    const firstHome = summarizeExterior("single_side", [asFront("b-left", "left"), asFront("a-back", "back")]);
+    const secondHome = summarizeExterior("single_side", [asFront("a-left", "left"), asFront("b-back", "back")]);
+    expect(firstHome.sides[0].photoId).toBe("b-left");
+    expect(secondHome.sides[0].photoId).toBe("a-left");
+    expect(firstHome.subtotalCents).toBe(sideCents("left"));
+    expect(secondHome.subtotalCents).toBe(firstHome.subtotalCents);
   });
 });
 
