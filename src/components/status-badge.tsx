@@ -1,13 +1,17 @@
 import { Badge } from "@/components/ui/badge";
 import type { PhotoStatus } from "@/domain/photo-status";
 
-const VARIANTS: Record<PhotoStatus, "default" | "secondary" | "destructive" | "outline"> = {
-  queued: "outline",
-  analyzing: "secondary",
-  analyzed: "default",
-  failed: "destructive",
+const TONES: Record<PhotoStatus, string> = {
+  queued: "border-border text-muted-foreground",
+  analyzing: "bg-warning/30 text-foreground",
+  analyzed: "bg-success/30 text-foreground",
+  failed: "bg-destructive/10 text-destructive",
 };
 
 export function StatusBadge({ status }: { status: PhotoStatus }) {
-  return <Badge variant={VARIANTS[status]}>{status}</Badge>;
+  return (
+    <Badge variant="outline" className={TONES[status]}>
+      {status}
+    </Badge>
+  );
 }
