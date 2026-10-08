@@ -393,7 +393,7 @@ function Caption({ text }: { text: string | null }) {
   return (
     <details className="text-sm">
       <summary className="cursor-pointer text-muted-foreground">Caption text that was embedded</summary>
-      <pre className="mt-2 whitespace-pre-wrap rounded-md bg-muted p-3 font-mono text-xs">{text}</pre>
+      <p className="mt-2 whitespace-pre-wrap rounded-md bg-muted p-3 text-xs">{text}</p>
     </details>
   );
 }
