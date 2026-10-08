@@ -20,7 +20,7 @@ export type EstimateSummary = {
 };
 
 /**
- * Whole-home total: analyzed rooms plus the exterior when its status counts.
+ * Whole-home total: analyzed rooms plus the exterior sides its scope and status count.
  * Pending and failed photos are counted, never guessed.
  */
 export function summarizeEstimate(
@@ -40,7 +40,6 @@ export function summarizeEstimate(
   const failedCount = photos.filter((p) => p.status === "failed").length;
   const interiorCents = rooms.reduce((n, r) => n + r.price.totalCents, 0);
   const interiorGallons = rooms.reduce((n, r) => n + r.price.gallons, 0);
-  const exteriorBlocks = exterior.status !== "none" && !exterior.countsInTotal;
 
   return {
     rooms,
@@ -48,9 +47,12 @@ export function summarizeEstimate(
     exterior,
     pendingCount,
     failedCount,
-    gallons: interiorGallons + (exterior.countsInTotal ? exterior.gallons : 0),
-    totalCents: interiorCents + (exterior.countsInTotal ? exterior.subtotalCents : 0),
+    gallons: interiorGallons + exterior.countedGallons,
+    totalCents: interiorCents + exterior.countedCents,
     complete:
-      pendingCount === 0 && failedCount === 0 && !exteriorBlocks && (rooms.length > 0 || exterior.countsInTotal),
+      pendingCount === 0 &&
+      failedCount === 0 &&
+      !exterior.blocksCompletion &&
+      (rooms.length > 0 || exterior.countedSides.length > 0),
   };
 }

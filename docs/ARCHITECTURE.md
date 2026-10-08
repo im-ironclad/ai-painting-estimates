@@ -89,7 +89,7 @@ On error, `ingestPhoto` picks one of two transitions.
 
 ### 7. Price and display
 
-`GET /api/estimates/[id]` returns `getEstimateView` from `src/server/estimates.ts`. It prices each analyzed photo with `pricePhoto` at read time, which calls `priceRoom` or `priceExteriorSide` by kind. `summarizeEstimate` in `src/domain/estimate.ts` adds up analyzed rooms, calls `summarizeExterior` for the exterior, and counts pending and failed photos separately. The total includes the exterior subtotal only when the exterior status counts.
+`GET /api/estimates/[id]` returns `getEstimateView` from `src/server/estimates.ts`. It prices each analyzed photo with `pricePhoto` at read time, which calls `priceRoom` or `priceExteriorSide` by kind. `summarizeEstimate` in `src/domain/estimate.ts` adds up analyzed rooms, calls `summarizeExterior` for the exterior, and counts pending and failed photos separately. The total includes the exterior sides that `COUNTED_SIDES` names for the scope, and only when `STATUS_RULES` says the status counts.
 
 The estimate page shows the total with "N still analyzing, not in total", "N failed, not in total", and the exterior line beside it. The page polls every second while any photo is pending and stops when all are terminal.
 

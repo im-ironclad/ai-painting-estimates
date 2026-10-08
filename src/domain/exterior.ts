@@ -19,12 +19,20 @@ const STATUS_BY_SCOPE: Record<ExteriorScope, (missing: number) => ExteriorStatus
   whole_exterior: (missing) => (missing === 0 ? "complete" : "incomplete"),
 };
 
-export const COUNTS_IN_TOTAL: Record<ExteriorStatus, boolean> = {
-  none: false,
-  needs_decision: false,
-  single_side_priced: true,
-  incomplete: false,
-  complete: true,
+/** The covered sides a scope adds to the total, when its status counts at all. Undecided counts the front provisionally. */
+export const COUNTED_SIDES: Record<ExteriorScope, readonly ExteriorSide[]> = {
+  undecided: ["front"],
+  single_side: EXTERIOR_SIDES,
+  whole_exterior: EXTERIOR_SIDES,
+};
+
+/** `counts`: the status adds its counted sides to the total. `blocks`: the estimate is not complete while in this status. */
+export const STATUS_RULES: Record<ExteriorStatus, { counts: boolean; blocks: boolean }> = {
+  none: { counts: false, blocks: false },
+  needs_decision: { counts: true, blocks: true },
+  single_side_priced: { counts: true, blocks: false },
+  incomplete: { counts: false, blocks: true },
+  complete: { counts: true, blocks: false },
 };
 
 /** An analyzed exterior photo. `side` is the stored side (user's choice, else the model's guess), never re-derived. */
@@ -38,11 +46,16 @@ export type ExteriorSummary = {
   sides: PricedSide[];
   coveredSides: ExteriorSide[];
   missingSides: ExteriorSide[];
+  countedSides: ExteriorSide[];
+  /** Covered sides that are priced but left out of the total. */
+  excludedSides: ExteriorSide[];
   /** Extra photos of an already covered side. Not priced. */
   duplicates: { photoId: string; side: ExteriorSide; pricedPhotoId: string }[];
+  /** Every priced side, counted or not. */
   subtotalCents: Cents;
-  gallons: number;
-  countsInTotal: boolean;
+  countedCents: Cents;
+  countedGallons: number;
+  blocksCompletion: boolean;
 };
 
 /**
@@ -79,15 +92,21 @@ export function summarizeExterior(
   const status: ExteriorStatus =
     coveredSides.length === 0 && REQUIRED_SIDES[scope].length === 0 ? "none" : STATUS_BY_SCOPE[scope](missingSides.length);
 
+  const rules = STATUS_RULES[status];
+  const counted = sides.filter((s) => rules.counts && COUNTED_SIDES[scope].includes(s.side));
+
   return {
     scope,
     status,
     sides,
     coveredSides,
     missingSides,
+    countedSides: counted.map((s) => s.side),
+    excludedSides: coveredSides.filter((side) => !counted.some((s) => s.side === side)),
     duplicates,
     subtotalCents: sides.reduce((n, s) => n + s.price.totalCents, 0),
-    gallons: sides.reduce((n, s) => n + s.price.gallons, 0),
-    countsInTotal: COUNTS_IN_TOTAL[status],
+    countedCents: counted.reduce((n, s) => n + s.price.totalCents, 0),
+    countedGallons: counted.reduce((n, s) => n + s.price.gallons, 0),
+    blocksCompletion: rules.blocks,
   };
 }

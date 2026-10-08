@@ -11,6 +11,7 @@ const ext = (id: string, side: ExteriorSide, confidence?: number): ExteriorPhoto
   return { id, side, analysis: confidence === undefined ? analysis : { ...analysis, confidence } };
 };
 const sideCents = (side: ExteriorSide) => priceExteriorSide(fixture(`exterior-${side}.jpg`)).totalCents;
+const sideGallons = (side: ExteriorSide) => priceExteriorSide(fixture(`exterior-${side}.jpg`)).gallons;
 
 const bedroom = FIXTURE_ANALYSES["bedroom.jpg"];
 const bedroomCents = priceRoom(bedroom).totalCents;
@@ -18,20 +19,40 @@ const bedroomCents = priceRoom(bedroom).totalCents;
 const allSides = [ext("f", "front"), ext("b", "back"), ext("l", "left"), ext("r", "right")];
 
 describe("summarizeExterior", () => {
-  it("prices a lone front but asks for a decision and keeps it out of the total", () => {
+  it("prices a lone front, counts it provisionally, and still asks for a decision", () => {
     const s = summarizeExterior("undecided", [ext("f", "front")]);
     expect(s.status).toBe("needs_decision");
     expect(s.sides).toEqual([{ side: "front", photoId: "f", price: priceExteriorSide(fixture("exterior-front.jpg")) }]);
     expect(s.subtotalCents).toBe(sideCents("front"));
     expect(s.missingSides).toEqual([]);
-    expect(s.countsInTotal).toBe(false);
+    expect(s.countedSides).toEqual(["front"]);
+    expect(s.countedCents).toBe(sideCents("front"));
+    expect(s.blocksCompletion).toBe(true);
+  });
+
+  it("counts only the front while undecided, pricing the other sides without counting them", () => {
+    const s = summarizeExterior("undecided", [ext("b", "back"), ext("f", "front")]);
+    expect(s.subtotalCents).toBe(sideCents("front") + sideCents("back"));
+    expect(s.countedSides).toEqual(["front"]);
+    expect(s.excludedSides).toEqual(["back"]);
+    expect(s.countedCents).toBe(sideCents("front"));
+    expect(s.countedGallons).toBe(sideGallons("front"));
+  });
+
+  it("counts nothing while undecided without a front photo", () => {
+    const s = summarizeExterior("undecided", [ext("b", "back")]);
+    expect(s.status).toBe("needs_decision");
+    expect(s.countedSides).toEqual([]);
+    expect(s.excludedSides).toEqual(["back"]);
+    expect(s.countedCents).toBe(0);
+    expect(s.countedGallons).toBe(0);
   });
 
   it("counts a single side once the user chooses it", () => {
     const s = summarizeExterior("single_side", [ext("f", "front")]);
     expect(s.status).toBe("single_side_priced");
-    expect(s.countsInTotal).toBe(true);
-    expect(s.subtotalCents).toBe(sideCents("front"));
+    expect(s.countedCents).toBe(sideCents("front"));
+    expect(s.blocksCompletion).toBe(false);
   });
 
   it("is incomplete with two of four sides, lists the missing ones, and stays out of the total", () => {
@@ -39,15 +60,20 @@ describe("summarizeExterior", () => {
     expect(s.status).toBe("incomplete");
     expect(s.coveredSides).toEqual(["front", "left"]);
     expect(s.missingSides).toEqual(["back", "right"]);
-    expect(s.countsInTotal).toBe(false);
+    expect(s.countedSides).toEqual([]);
+    expect(s.excludedSides).toEqual(["front", "left"]);
+    expect(s.countedCents).toBe(0);
+    expect(s.countedGallons).toBe(0);
+    expect(s.blocksCompletion).toBe(true);
   });
 
   it("is complete and counted with all four sides", () => {
     const s = summarizeExterior("whole_exterior", allSides);
     expect(s.status).toBe("complete");
     expect(s.missingSides).toEqual([]);
-    expect(s.countsInTotal).toBe(true);
-    expect(s.subtotalCents).toBe(sideCents("front") + sideCents("back") + sideCents("left") + sideCents("right"));
+    expect(s.countedSides).toEqual(["front", "back", "left", "right"]);
+    expect(s.countedCents).toBe(sideCents("front") + sideCents("back") + sideCents("left") + sideCents("right"));
+    expect(s.blocksCompletion).toBe(false);
   });
 
   it("asks for every side when the whole exterior is chosen before any upload", () => {
@@ -112,12 +138,28 @@ describe("summarizeEstimate", () => {
     expect(s.complete).toBe(true);
   });
 
-  it("leaves an undecided or incomplete exterior out of the total and marks the estimate incomplete", () => {
-    for (const scope of ["undecided", "whole_exterior"] as const) {
-      const s = summarizeEstimate([{ id: "a", status: "analyzed", analysis: bedroom }, analyzedExt(ext("f", "front"))], scope);
-      expect(s.totalCents).toBe(bedroomCents);
-      expect(s.complete).toBe(false);
-    }
+  it("leaves an incomplete whole exterior out of the total and marks the estimate incomplete", () => {
+    const s = summarizeEstimate([{ id: "a", status: "analyzed", analysis: bedroom }, analyzedExt(ext("f", "front"))], "whole_exterior");
+    expect(s.totalCents).toBe(bedroomCents);
+    expect(s.gallons).toBe(priceRoom(bedroom).gallons);
+    expect(s.complete).toBe(false);
+  });
+
+  it("adds only the front to the total while undecided, and stays incomplete until the scope is chosen", () => {
+    const s = summarizeEstimate(
+      [{ id: "a", status: "analyzed", analysis: bedroom }, analyzedExt(ext("f", "front")), analyzedExt(ext("b", "back"))],
+      "undecided",
+    );
+    expect(s.totalCents).toBe(bedroomCents + sideCents("front"));
+    expect(s.gallons).toBe(priceRoom(bedroom).gallons + sideGallons("front"));
+    expect(s.complete).toBe(false);
+  });
+
+  it("adds nothing from the exterior while undecided without a front photo", () => {
+    const s = summarizeEstimate([{ id: "a", status: "analyzed", analysis: bedroom }, analyzedExt(ext("b", "back"))], "undecided");
+    expect(s.totalCents).toBe(bedroomCents);
+    expect(s.gallons).toBe(priceRoom(bedroom).gallons);
+    expect(s.complete).toBe(false);
   });
 
   it("is complete with a whole exterior and no interior", () => {

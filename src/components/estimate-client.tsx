@@ -166,7 +166,16 @@ function Chip({ tone = "neutral", children, ...props }: { tone?: keyof typeof CH
 
 const EXTERIOR_LINE: Record<ExteriorSummary["status"], ((e: ExteriorSummary) => string) | null> = {
   none: null,
-  needs_decision: (e) => `Exterior ${listSides(e.coveredSides)} ${formatCents(e.subtotalCents)}, not in total until you choose a scope`,
+  needs_decision: (e) =>
+    e.countedSides.length === 0
+      ? `Exterior ${listSides(e.excludedSides)} ${formatCents(e.subtotalCents)}, not in total until you choose a scope`
+      : [
+          `Exterior ${listSides(e.countedSides)} ${formatCents(e.countedCents)} in total for now`,
+          e.excludedSides.length > 0 &&
+            `${listSides(e.excludedSides)} ${formatCents(e.subtotalCents - e.countedCents)} not counted until you choose a scope`,
+        ]
+          .filter(Boolean)
+          .join(", "),
   single_side_priced: (e) => `Exterior (${listSides(e.coveredSides)} only) ${formatCents(e.subtotalCents)}`,
   incomplete: (e) => `Exterior incomplete: ${e.missingSides.length} of 4 sides missing, not in total`,
   complete: (e) => `Whole exterior ${formatCents(e.subtotalCents)}`,
@@ -176,10 +185,19 @@ function ExteriorLine({ exterior }: { exterior: ExteriorSummary }) {
   const line = EXTERIOR_LINE[exterior.status];
   if (!line) return null;
   return (
-    <Chip tone={exterior.countsInTotal ? "neutral" : "pending"} data-testid="exterior-line">
+    <Chip tone={exterior.blocksCompletion ? "pending" : "neutral"} data-testid="exterior-line">
       {line(exterior)}
     </Chip>
   );
+}
+
+function undecidedPrompt(e: ExteriorSummary) {
+  const counted =
+    e.countedSides.length > 0 && `The ${listSides(e.countedSides)} (${formatCents(e.countedCents)}) is in the total for now.`;
+  const excluded = e.excludedSides.length > 0 && `Left out of the total until you choose: ${listSides(e.excludedSides)}.`;
+  return [`We priced the ${listSides(e.coveredSides)} at ${formatCents(e.subtotalCents)}.`, counted, excluded, "Paint just this side, or the whole exterior?"]
+    .filter(Boolean)
+    .join(" ");
 }
 
 function ExteriorPanel(props: {
@@ -194,8 +212,7 @@ function ExteriorPanel(props: {
     <Card data-testid="exterior-panel" data-status={exterior.status}>
       <CardHeader>
         <CardDescription className="text-base text-foreground">
-          {exterior.status === "needs_decision" &&
-            `We priced the ${listSides(exterior.coveredSides)} at ${formatCents(exterior.subtotalCents)}. Paint just this side, or the whole exterior?`}
+          {exterior.status === "needs_decision" && undecidedPrompt(exterior)}
           {exterior.status === "single_side_priced" && `Pricing the ${listSides(exterior.coveredSides)} only.`}
           {exterior.status === "incomplete" &&
             `Whole exterior: upload the ${listSides(exterior.missingSides)} to finish. The exterior stays out of the total until all four sides are analyzed.`}
