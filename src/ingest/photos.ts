@@ -12,7 +12,7 @@ const MAX_BYTES = 15 * 1024 * 1024;
 export class UploadError extends Error {}
 
 export function uploadDir(): string {
-  return path.resolve(process.env.UPLOAD_DIR ?? "./uploads");
+  return path.resolve(/*turbopackIgnore: true*/ process.env.UPLOAD_DIR ?? "./uploads");
 }
 
 export type IncomingFile = { name: string; type: string; bytes: Buffer };
@@ -31,7 +31,7 @@ export async function storePhoto(estimateId: string, file: IncomingFile): Promis
   if (file.bytes.byteLength > MAX_BYTES) throw new UploadError("File is larger than 15 MB.");
 
   const id = randomUUID();
-  const filePath = path.join(uploadDir(), `${id}${ext}`);
+  const filePath = path.join(/*turbopackIgnore: true*/ uploadDir(), `${id}${ext}`);
   await mkdir(uploadDir(), { recursive: true });
   await writeFile(filePath, file.bytes);
   await db.insert(photos).values({ id, estimateId, filePath, originalName: file.name });
