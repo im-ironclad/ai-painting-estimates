@@ -27,15 +27,21 @@ If the photo is neither, use kind "interior", roomType "other", an empty surface
 
 const { $schema: _ignored, ...schema } = photoAnalysisJsonSchema;
 
+const list = (value: string | undefined) =>
+  (value ?? "")
+    .split(",")
+    .map((m) => m.trim())
+    .filter(Boolean);
+
 function config() {
+  const seed = process.env.VISION_SEED?.trim();
   return {
     apiKey: process.env.OPENROUTER_API_KEY?.trim(),
     baseUrl: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
     model: process.env.VISION_MODEL ?? "google/gemini-3.1-flash-lite",
-    fallbacks: (process.env.VISION_FALLBACK_MODELS ?? "")
-      .split(",")
-      .map((m) => m.trim())
-      .filter(Boolean),
+    fallbacks: list(process.env.VISION_FALLBACK_MODELS),
+    providers: list(process.env.VISION_PROVIDERS),
+    seed: seed ? Number(seed) : undefined,
   };
 }
 
@@ -50,7 +56,7 @@ export async function toDataUrl(imagePath: string): Promise<string> {
 }
 
 export async function analyzePhoto(imagePath: string): Promise<VisionResult> {
-  const { apiKey, baseUrl, model, fallbacks } = config();
+  const { apiKey, baseUrl, model, fallbacks, providers, seed } = config();
   if (!apiKey) {
     throw new VisionError("OPENROUTER_API_KEY is not set. Add it to .env.local and restart the worker.", false);
   }
@@ -59,8 +65,11 @@ export async function analyzePhoto(imagePath: string): Promise<VisionResult> {
     model,
     models: [model, ...fallbacks],
     temperature: 0,
+    seed,
     max_tokens: 4096,
-    provider: { require_parameters: true },
+    provider: providers.length
+      ? { require_parameters: true, order: providers, allow_fallbacks: false }
+      : { require_parameters: true },
     response_format: {
       type: "json_schema",
       json_schema: { name: "photo_analysis", strict: true, schema },
