@@ -14,20 +14,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <header className="border-b">
-          <nav className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3 text-sm">
-            <Link href="/" className="font-semibold">
+        <header className="border-b bg-card">
+          <nav className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-4 text-sm">
+            <Link href="/" className="text-base font-bold tracking-tight text-primary">
               Paint Estimator estimates
             </Link>
-            <Link href="/" className="text-muted-foreground hover:text-foreground">
+            <Link href="/" className="font-medium text-muted-foreground hover:text-foreground">
               Homes
             </Link>
-            <Link href="/search" className="text-muted-foreground hover:text-foreground">
+            <Link href="/search" className="font-medium text-muted-foreground hover:text-foreground">
               Search photos
             </Link>
           </nav>
         </header>
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">{children}</main>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">{children}</main>
       </body>
     </html>
   );

@@ -25,8 +25,9 @@ export function NewEstimateForm() {
   }
 
   return (
-    <form onSubmit={submit} className="flex max-w-md gap-2">
+    <form onSubmit={submit} className="flex w-full max-w-md flex-wrap gap-2 sm:w-auto">
       <Input
+        className="min-w-0 flex-1 sm:w-64"
         aria-label="Home name"
         placeholder="e.g. 12 Oak Street"
         value={name}

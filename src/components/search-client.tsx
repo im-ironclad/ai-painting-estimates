@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageHeader, Section } from "@/components/section";
 import { CONDITIONS, EXTERIOR_SIDES, PHOTO_KINDS, ROOM_TYPES, type PhotoAnalysis } from "@/domain/photo-analysis";
 import type { SearchHit, SearchMode, SearchResults } from "@/search/search";
 
@@ -53,12 +54,9 @@ export function SearchClient() {
   const modes: SearchMode[] = view === "compare" ? ["caption", "clip", "hybrid"] : [view];
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold">Search photos</h1>
-        <p className="text-muted-foreground">Semantic search over every analyzed photo, inside and out, three ways.</p>
-      </div>
-      <form onSubmit={search} className="flex flex-wrap items-center gap-2">
+    <div className="space-y-8">
+      <PageHeader title="Search photos" description="Semantic search over every analyzed photo, inside and out, three ways." />
+      <form onSubmit={search} className="flex flex-wrap items-center gap-2 rounded-xl bg-card p-4 ring-1 ring-foreground/10">
         <Input
           aria-label="Search query"
           className="max-w-md"
@@ -88,16 +86,14 @@ export function SearchClient() {
           <p className="text-sm text-muted-foreground">Searched in {results.tookMs} ms, including both query embeddings.</p>
           <div className={`grid gap-6 ${modes.length > 1 ? "lg:grid-cols-3" : ""}`}>
             {modes.map((mode) => (
-              <section key={mode} className="space-y-3" data-testid={`results-${mode}`}>
-                <div>
-                  <h2 className="font-semibold">{MODE_LABELS[mode].title}</h2>
-                  <p className="text-xs text-muted-foreground">{MODE_LABELS[mode].blurb}</p>
-                </div>
-                {results[mode].length === 0 && <p className="text-sm text-muted-foreground">No matches.</p>}
-                {results[mode].map((hit, i) => (
-                  <HitCard key={hit.photoId} hit={hit} rank={i + 1} mode={mode} />
-                ))}
-              </section>
+              <div key={mode} data-testid={`results-${mode}`}>
+                <Section title={MODE_LABELS[mode].title} description={MODE_LABELS[mode].blurb}>
+                  {results[mode].length === 0 && <p className="text-sm text-muted-foreground">No matches.</p>}
+                  {results[mode].map((hit, i) => (
+                    <HitCard key={hit.photoId} hit={hit} rank={i + 1} mode={mode} />
+                  ))}
+                </Section>
+              </div>
             ))}
           </div>
         </>
@@ -139,7 +135,7 @@ function HitCard({ hit, rank, mode }: { hit: SearchHit; rank: number; mode: Sear
       {/* eslint-disable-next-line @next/next/no-img-element -- local API route, no optimizer needed */}
       <img src={`/api/photos/${hit.photoId}/image`} alt={hit.originalName} className="aspect-video w-full object-cover" />
       <CardHeader>
-        <CardTitle className="capitalize">
+        <CardTitle className="font-semibold capitalize">
           {rank}. {hitTitle(hit.analysis, hit.exteriorSide)}
         </CardTitle>
         <CardDescription>
@@ -147,7 +143,7 @@ function HitCard({ hit, rank, mode }: { hit: SearchHit; rank: number; mode: Sear
         </CardDescription>
       </CardHeader>
       <CardContent className="text-xs text-muted-foreground">
-        <Link href={`/estimates/${hit.estimateId}`} className="underline">
+        <Link href={`/estimates/${hit.estimateId}`} className="font-medium text-primary hover:underline">
           {hit.estimateName}
         </Link>
       </CardContent>
