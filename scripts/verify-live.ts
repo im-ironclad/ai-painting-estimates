@@ -5,7 +5,8 @@ import { db, sql } from "@/db/client";
 import { estimates, photos } from "@/db/schema";
 import type { PhotoAnalysis } from "@/domain/photo-analysis";
 import { formatCents, pricePhoto } from "@/domain/pricing";
-import { ingestPhoto } from "@/ingest/ingest-photo";
+import { ingestPhoto, isRetryable } from "@/ingest/ingest-photo";
+import { MAX_ATTEMPTS } from "@/ingest/queue";
 import { storePhoto } from "@/ingest/photos";
 import { analyzePhoto } from "@/ingest/vision";
 import { searchPhotos } from "@/search/search";
@@ -47,11 +48,21 @@ for (const [fileName, expected] of Object.entries(FIXTURE_ANALYSES)) {
   const bytes = await readFile(path.join("samples", fileName));
   const photoId = await storePhoto(estimate.id, { name: fileName, type: "image/jpeg", bytes });
   const started = Date.now();
-  try {
-    await ingestPhoto(photoId, analyzePhoto, { finalAttempt: true });
-  } catch (error) {
+  let attempt = 0;
+  let error: Error | null = null;
+  do {
+    attempt++;
+    try {
+      await ingestPhoto(photoId, analyzePhoto, { finalAttempt: attempt === MAX_ATTEMPTS });
+      error = null;
+    } catch (e) {
+      error = e as Error;
+      console.log(`${fileName.padEnd(28)} attempt ${attempt} failed: ${error.message}`);
+    }
+  } while (error && isRetryable(error) && attempt < MAX_ATTEMPTS);
+  if (error) {
     failures++;
-    console.log(`${fileName.padEnd(28)} FAILED in ${Date.now() - started} ms: ${(error as Error).message}`);
+    console.log(`${fileName.padEnd(28)} FAILED after ${attempt} attempts in ${Date.now() - started} ms`);
     continue;
   }
   const [row] = await db.select().from(photos).where(eq(photos.id, photoId));
@@ -66,7 +77,7 @@ for (const [fileName, expected] of Object.entries(FIXTURE_ANALYSES)) {
   labelMatches += Number(labelOk);
   prepMatches += Number(kindOk && prepDiff.length === 0);
   console.log(
-    `${fileName.padEnd(28)} ${String(Date.now() - started).padStart(5)} ms  ${row.model}  ${text}  ` +
+    `${fileName.padEnd(28)} ${String(Date.now() - started).padStart(5)} ms  attempts=${attempt}  ${row.model}  ${text}  ` +
       `prep=${prepDiff.length === 0 ? "matches" : `differs on ${prepDiff.join(", ")}`}  ` +
       `confidence=${analysis.confidence}  ${formatCents(pricePhoto(analysis).totalCents)}`,
   );
