@@ -6,7 +6,7 @@ import "./globals.css";
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Paint Estimator estimates",
+  title: "Paint Estimator",
   description: "Instant paint estimates from room photos",
 };
 
@@ -17,7 +17,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <header className="border-b bg-card [view-transition-name:site-header]">
           <nav className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-4 text-sm">
             <Link href="/" className="text-base font-bold tracking-tight text-primary">
-              Paint Estimator estimates
+              Paint Estimator
             </Link>
             <Link href="/" className="font-medium text-muted-foreground hover:text-foreground">
               Homes

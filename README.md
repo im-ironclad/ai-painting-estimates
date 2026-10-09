@@ -1,4 +1,4 @@
-# Paint Estimator estimates
+# Paint Estimator
 
 Upload one photo per room of a home, or one per side of the house. A vision model says whether each photo is an interior or an exterior and extracts the paintable surfaces, their condition, and the prep work. Code prices each room and each side from that extraction, and they add up to a whole-home estimate.
 

@@ -5,7 +5,7 @@
 /* No theme toggle sets .dark, so this only keeps the ui components' dark: utilities from following the OS. */
 @custom-variant dark (&:is(.dark *));
 
-/* Brand scale from the reference site's --primary-50..900 tokens. */
+/* Plum brand scale, 50 to 900. */
 @theme {
   --color-plum-50: #fbf7fe;
   --color-plum-100: #f5e8fc;

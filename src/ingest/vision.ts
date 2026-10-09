@@ -93,7 +93,7 @@ export async function analyzePhoto(imagePath: string): Promise<VisionResult> {
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "X-Title": "Paint Estimator paint estimate POC",
+        "X-Title": "Paint estimate POC",
       },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(60_000),
